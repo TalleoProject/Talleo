@@ -82,7 +82,7 @@ void fullOptimize(CryptoNote::WalletGreen &wallet);
 bool confirmTransaction(CryptoNote::TransactionParameters t,
                         std::shared_ptr<WalletInfo> walletInfo);
 
-bool optimize(CryptoNote::WalletGreen &wallet, uint64_t threshold);
+bool optimize(CryptoNote::WalletGreen &wallet, const std::vector<std::string> &addresses, uint64_t threshold);
 
 bool parseAmount(std::string amountString);
 
@@ -102,5 +102,5 @@ Maybe<uint64_t> getTransferAmount();
 
 Maybe<uint16_t> getMixin();
 
-size_t makeFusionTransaction(CryptoNote::WalletGreen &wallet,
+size_t makeFusionTransaction(CryptoNote::WalletGreen &wallet, const std::vector<std::string> &addresses,
                              uint64_t threshold);

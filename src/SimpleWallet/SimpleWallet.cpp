@@ -26,7 +26,9 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 #endif
 
 #include <SimpleWallet/SimpleWallet.h>
+#include <SimpleWallet/SubWallet.h>
 #include <cstring>
+#include <limits>
 
 #include "Common/JsonValue.h"
 #include "Rpc/HttpClient.h"
@@ -34,6 +36,10 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 // Fee address is declared here so we can access it from other source files
 std::string remote_fee_address;
+// Current subwallet index
+size_t subWallet = 0;
+// Subwallet index that shouldn't exist and can be used as error response
+const size_t invalidIndex = std::numeric_limits<size_t>::max();
 
 int main(int argc, char **argv) {
     /* On ctrl+c the program seems to throw "simplewallet.exe has stopped
@@ -364,6 +370,13 @@ Maybe<std::shared_ptr<WalletInfo>> openWallet(CryptoNote::WalletGreen &wallet, C
                           << InformationMsg("Your wallet ") << SuccessMsg(walletAddress) << InformationMsg(" has been successfully opened!") << std::endl
                           << std::endl;
 
+                if (wallet.getAddressCount() > 1) {
+                    size_t subAddressCount = wallet.getAddressCount() - 1;
+                    std::cout << InformationMsg("Wallet file contains ") << SuccessMsg(std::to_string(subAddressCount))
+                              << (subAddressCount == 1 ? InformationMsg(" subwallet.") : InformationMsg(" subwallets.")) << std::endl
+                              << std::endl;
+                }
+
                 return Just<std::shared_ptr<WalletInfo>> (std::make_shared<WalletInfo>(walletFileName, walletPass, walletAddress, false, wallet));
             }
 
@@ -377,16 +390,16 @@ Maybe<std::shared_ptr<WalletInfo>> openWallet(CryptoNote::WalletGreen &wallet, C
             std::string errorMsg = e.what();
 
             /* There are three different error messages depending upon if we're
-               opening a walletgreen or a walletlegacy wallet */
+               opening a WalletGreen or a WalletLegacy wallet */
             if (errorMsg == walletSuccessBadPwdMsg || errorMsg == walletSuccessBadPwdMsg2 || errorMsg == walletLegacyBadPwdMsg) {
                 std::cout << WarningMsg("Incorrect password! Try again.") << std::endl;
             }
-            /* The message actually has a \r\n on the end but i'd prefer to
-               keep just the raw string in the source so check the it starts
+            /* The message actually has a \r\n on the end but I'd prefer to
+               keep just the raw string in the source so check that it starts
                with instead */
             else if (boost::starts_with(errorMsg, alreadyOpenMsg)) {
                 std::cout << WarningMsg("Could not open wallet! It is already open in another process.") << std::endl
-                          << WarningMsg("Check with a task manager that you don't have simplewallet open twice.") << std::endl
+                          << WarningMsg("Check with a task manager that you don't have SimpleWallet open twice.") << std::endl
                           << WarningMsg("Also check you don't have another wallet program open, such as a GUI wallet or walletd.") << std::endl
                           << std::endl;
 
@@ -397,7 +410,7 @@ Maybe<std::shared_ptr<WalletInfo>> openWallet(CryptoNote::WalletGreen &wallet, C
             } else if (errorMsg == notAWalletMsg) {
                 std::cout << WarningMsg("Could not open wallet file! It doesn't appear to be a valid wallet!") << std::endl
                           << WarningMsg("Ensure you are opening a wallet file, and the file has not gotten corrupted.") << std::endl
-                          << WarningMsg("Try reimporting via keys, and always close simplewallet with the exit command to prevent corruption.") << std::endl
+                          << WarningMsg("Try reimporting via keys, and always close SimpleWallet with the exit command to prevent corruption.") << std::endl
                           << std::endl;
 
                 std::cout << "Returning to selection screen..." << std::endl
@@ -417,14 +430,35 @@ Maybe<std::shared_ptr<WalletInfo>> openWallet(CryptoNote::WalletGreen &wallet, C
     }
 }
 
-Crypto::SecretKey getPrivateKey(std::string msg) {
+bool verifyPrivateKey(const std::string &privateKeyString, Crypto::SecretKey &privateKey) {
     size_t privateKeyLen = 64;
     size_t size;
+    Crypto::Hash privateKeyHash;
+    Crypto::PublicKey publicKey;
+
+    if (privateKeyString.length() != privateKeyLen) {
+        std::cout << WarningMsg("Invalid private key, should be 64 characters! Try again.") << std::endl;
+        return false;
+    } else if (!Common::fromHex(privateKeyString, &privateKeyHash, sizeof(privateKeyHash), size) || size != sizeof(privateKeyHash)) {
+        std::cout << WarningMsg("Invalid private key, failed to parse! Ensure you entered it correctly.") << std::endl;
+        return false;
+    }
+
+    privateKey = *(struct Crypto::SecretKey *) &privateKeyHash;
+
+    /* Just used for verification purposes before we pass it to WalletGreen */
+    if (!Crypto::secret_key_to_public_key(privateKey, publicKey)) {
+        std::cout << "Invalid private key, failed to parse! Ensure you entered it correctly." << std::endl;
+        return false;
+    }
+
+    return true;
+}
+
+Crypto::SecretKey getPrivateKey(std::string msg) {
 
     std::string privateKeyString;
-    Crypto::Hash privateKeyHash;
     Crypto::SecretKey privateKey;
-    Crypto::PublicKey publicKey;
 
     while (true) {
         std::cout << msg;
@@ -432,24 +466,9 @@ Crypto::SecretKey getPrivateKey(std::string msg) {
         std::getline(std::cin, privateKeyString);
         boost::algorithm::trim(privateKeyString);
 
-        if (privateKeyString.length() != privateKeyLen) {
-            std::cout << WarningMsg("Invalid private key, should be 64 characters! Try again.") << std::endl;
-            continue;
-        } else if (!Common::fromHex(privateKeyString, &privateKeyHash, sizeof(privateKeyHash), size) || size != sizeof(privateKeyHash)) {
-            std::cout << WarningMsg("Invalid private key, failed to parse! Ensure you entered it correctly.") << std::endl;
-            continue;
+        if (verifyPrivateKey(privateKeyString, privateKey)) {
+            return privateKey;
         }
-
-        privateKey = *(struct Crypto::SecretKey *) &privateKeyHash;
-
-        /* Just used for verification purposes before we pass it to
-           walletgreen */
-        if (!Crypto::secret_key_to_public_key(privateKey, publicKey)) {
-            std::cout << "Invalid private key, failed to parse! Ensure you entered it correctly." << std::endl;
-            continue;
-        }
-
-        return privateKey;
     }
 }
 
@@ -560,7 +579,9 @@ void promptSaveKeys(CryptoNote::WalletGreen &wallet) {
 }
 
 void exportKeys(std::shared_ptr<WalletInfo> &walletInfo) {
-    confirmPassword(walletInfo->walletPass);
+    if (walletInfo->walletPass != "") {
+         confirmPassword(walletInfo->walletPass);
+    }
     printPrivateKeys(walletInfo->wallet, walletInfo->viewWallet);
 }
 
@@ -575,36 +596,50 @@ void printPrivateKeys(CryptoNote::WalletGreen &wallet, bool viewWallet) {
         return;
     }
 
-    Crypto::SecretKey privateSpendKey = wallet.getAddressSpendKey(0).secretKey;
-    Crypto::PublicKey publicSpendKey = wallet.getAddressSpendKey(0).publicKey;
     Crypto::PublicKey publicViewKey = wallet.getViewKey().publicKey;
 
-    Crypto::SecretKey derivedPrivateViewKey;
+    for (size_t i = 0; i < wallet.getAddressCount(); i++) {
+        Crypto::SecretKey privateSpendKey = wallet.getAddressSpendKey(i).secretKey;
+        Crypto::PublicKey publicSpendKey = wallet.getAddressSpendKey(i).publicKey;
 
-    CryptoNote::AccountBase::generateViewFromSpend(privateSpendKey, derivedPrivateViewKey);
+        Crypto::SecretKey derivedPrivateViewKey;
 
-    bool deterministicPrivateKeys = derivedPrivateViewKey == privateViewKey;
+        CryptoNote::AccountBase::generateViewFromSpend(privateSpendKey, derivedPrivateViewKey);
 
-    std::cout << InformationMsg("Private spend key:") << std::endl
-              << Common::podToHex(privateSpendKey) << std::endl
-              << std::endl
-              << InformationMsg("Private view key:") << std::endl
-              << Common::podToHex(privateViewKey) << std::endl
-              << std::endl
-              << SuccessMsg("GUI import key:") << std::endl
-              << Common::podToHex(publicSpendKey) <<std::endl
-              << Common::podToHex(publicViewKey) <<std::endl
-              << Common::podToHex(privateSpendKey) <<std::endl
-              << Common::podToHex(privateViewKey) << std::endl;
+        bool deterministicPrivateKeys = derivedPrivateViewKey == privateViewKey;
 
-    if (deterministicPrivateKeys) {
-        std::string mnemonicSeed;
+        if (i > 0) {
+            std::cout << std::endl;
+        }
+        if (wallet.getAddressCount() > 1) {
+            std::cout << InformationMsg("Address:") << std::endl
+                      << wallet.getAddress(i) << std::endl
+                      << std::endl;
+        }
+        std::cout << InformationMsg("Private spend key:") << std::endl
+                  << Common::podToHex(privateSpendKey) << std::endl
+                  << std::endl;
+        if (i == 0) {
+            // Private view key is shared between subaddresses, only print it once as it's only required when recovering with GUI wallet
+            std::cout << InformationMsg("Private view key:") << std::endl
+                      << Common::podToHex(privateViewKey) << std::endl
+                      << std::endl;
+        }
+        std::cout << SuccessMsg("GUI import key:") << std::endl
+                  << Common::podToHex(publicSpendKey) <<std::endl
+                  << Common::podToHex(publicViewKey) <<std::endl
+                  << Common::podToHex(privateSpendKey) <<std::endl
+                  << Common::podToHex(privateViewKey) << std::endl;
 
-        crypto::ElectrumWords::bytes_to_words(privateSpendKey, mnemonicSeed, "English");
+        if (deterministicPrivateKeys) {
+            std::string mnemonicSeed;
 
-        std::cout << std::endl
-                  << SuccessMsg("Mnemonic seed:") << std::endl
-                  << SuccessMsg(mnemonicSeed) << std::endl;
+            crypto::ElectrumWords::bytes_to_words(privateSpendKey, mnemonicSeed, "English");
+
+            std::cout << std::endl
+                      << SuccessMsg("Mnemonic seed:") << std::endl
+                      << SuccessMsg(mnemonicSeed) << std::endl;
+        }
     }
 }
 
@@ -668,7 +703,7 @@ void inputLoop(std::shared_ptr<WalletInfo> &walletInfo, CryptoNote::INode &node)
         } else if (command == "balance") {
             balance(node, walletInfo->wallet, walletInfo->viewWallet);
         } else if (command == "address") {
-            std::cout << SuccessMsg(walletInfo->walletAddress) << std::endl;
+            std::cout << SuccessMsg(walletInfo->wallet.getAddress(subWallet)) << std::endl;
         } else if (command == "incoming_transfers") {
             listTransfers(true, false, walletInfo->wallet, node);
         } else if (command == "exit") {
@@ -687,10 +722,29 @@ void inputLoop(std::shared_ptr<WalletInfo> &walletInfo, CryptoNote::INode &node)
         } else if (words[0] == "change_password") {
             words.erase(words.begin());
             changePassword(walletInfo, words);
-        } else if (words[0] == "outputs") {
+        } else if (command == "outputs") {
             estimateFusion(walletInfo);
         } else if (!walletInfo->viewWallet) {
-            if (command == "outgoing_transfers") {
+            if (command == "add_address") {
+                addAddress(walletInfo->wallet);
+            } else if (command == "delete_address") {
+                deleteAddress(walletInfo->wallet);
+            } else if (words[0] == "delete_address") {
+                words.erase(words.begin());
+                deleteAddress(walletInfo->wallet, words);
+            } else if (command == "list_addresses") {
+                listAddresses(walletInfo->wallet);
+            } else if (command == "recover_address") {
+                recoverAddress(walletInfo, node);
+            } else if (words[0] == "recover_address") {
+                words.erase(words.begin());
+                recoverAddress(walletInfo, node, words);
+            } else if (command == "select_address") {
+                selectAddress(walletInfo->wallet);
+            } else if (words[0] == "select_address") {
+                words.erase(words.begin());
+                selectAddress(walletInfo->wallet, words);
+            } else if (command == "outgoing_transfers") {
                 listTransfers(false, true, walletInfo->wallet, node);
             } else if (command == "list_outputs") {
                 listOutputs(walletInfo->wallet, node);
@@ -731,7 +785,12 @@ void help(bool viewWallet) {
               << SuccessMsg("change_password", 25) << "Change password of current wallet file" << std::endl
               << SuccessMsg("export_keys", 25) << "Export your private keys" << std::endl;
     if (!viewWallet) {
-        std::cout << SuccessMsg("transfer", 25) << "Send " << coinTicker << " to someone" << std::endl
+        std::cout << SuccessMsg("add_address", 25) << "Add new subwallet" << std::endl
+                  << SuccessMsg("delete_address", 25) << "Delete subwallet" << std::endl
+                  << SuccessMsg("list_addresses", 25) << "List subwallets" << std::endl
+                  << SuccessMsg("recover_address", 25) << "Recover subwallet using private spend key" << std::endl
+                  << SuccessMsg("select_address", 25) << "Select current subwallet" << std::endl
+                  << SuccessMsg("transfer", 25) << "Send " << coinTicker << " to someone" << std::endl
                   << SuccessMsg("list_outputs", 25) << "Show unspent outputs" << std::endl
                   << SuccessMsg("list_transfers", 25) << "Show all transfers" << std::endl
                   << SuccessMsg("quick_optimize", 25) << "Quickly optimize your wallet to send large amounts" << std::endl
@@ -747,8 +806,9 @@ void help(bool viewWallet) {
 }
 
 void balance(CryptoNote::INode &node, CryptoNote::WalletGreen &wallet, bool viewWallet) {
-    uint64_t unconfirmedBalance = wallet.getPendingBalance();
-    uint64_t confirmedBalance = wallet.getActualBalance();
+    std::string address = wallet.getAddress(subWallet);
+    uint64_t unconfirmedBalance = wallet.getPendingBalance(address);
+    uint64_t confirmedBalance = wallet.getActualBalance(address);
     uint64_t totalBalance = unconfirmedBalance + confirmedBalance;
 
     uint32_t localHeight = node.getLastLocalBlockHeight();
@@ -896,12 +956,28 @@ std::string getBlockTime(CryptoNote::BlockDetails b) {
     return std::string(buffer);
 }
 
-void printOutgoingTransfer(CryptoNote::WalletTransaction t, CryptoNote::INode &node) {
+int64_t filterAmounts(const CryptoNote::WalletTransaction &t, CryptoNote::WalletGreen &wallet) {
+    std::string address = wallet.getAddress(subWallet);
+    int64_t total = 0;
+    CryptoNote::WalletTransactionWithTransfers tt = wallet.getTransaction(t.hash);
+    size_t numTransfers = tt.transfers.size();
+    for (size_t j = 0; j < numTransfers; j++) {
+        CryptoNote::WalletTransfer wt = tt.transfers[j];
+        if (wt.address == address) {
+            total += wt.amount;
+        }
+    }
+    return total;
+}
+
+void printOutgoingTransfer(const CryptoNote::WalletTransaction &t, CryptoNote::INode &node, CryptoNote::WalletGreen &wallet, bool allWallets) {
     std::string blockTime = getBlockTime(getBlock(t.blockHeight, node));
+    int64_t amount = allWallets ? t.totalAmount : filterAmounts(t, wallet);
+    if (amount == 0) return;
 
     std::cout << WarningMsg("Outgoing transfer:") << std::endl
               << WarningMsg("Hash: " + Common::podToHex(t.hash)) << std::endl
-              << WarningMsg("Spent: " + formatAmount(-t.totalAmount - t.fee)) << std::endl
+              << WarningMsg("Spent: " + formatAmount(-amount - t.fee)) << std::endl
               << WarningMsg("Fee: " + formatAmount(t.fee)) << std::endl
               << WarningMsg("Total Spent: " + formatAmount(-t.totalAmount)) << std::endl;
 
@@ -913,8 +989,10 @@ void printOutgoingTransfer(CryptoNote::WalletTransaction t, CryptoNote::INode &n
     std::cout << std::endl;
 }
 
-void printIncomingTransfer(CryptoNote::WalletTransaction t, CryptoNote::INode &node) {
+void printIncomingTransfer(const CryptoNote::WalletTransaction &t, CryptoNote::INode &node, CryptoNote::WalletGreen &wallet, bool allWallets) {
     std::string blockTime = getBlockTime(getBlock(t.blockHeight, node));
+    int64_t amount = allWallets ? t.totalAmount : filterAmounts(t, wallet);
+    if (amount == 0) return;
 
     std::cout << std::endl
               << InformationMsg("Incoming transfer:") << std::endl;
@@ -924,7 +1002,7 @@ void printIncomingTransfer(CryptoNote::WalletTransaction t, CryptoNote::INode &n
         std::cout << SuccessMsg("Time: " + blockTime) << std::endl;
     }
     std::cout << SuccessMsg("Hash: " + Common::podToHex(t.hash)) << std::endl
-              << SuccessMsg("Amount: " + formatAmount(t.totalAmount)) << std::endl;
+              << SuccessMsg("Amount: " + formatAmount(amount)) << std::endl;
 
     Crypto::Hash paymentId;
     std::vector<uint8_t> vec(t.extra.begin(), t.extra.end());
@@ -936,7 +1014,7 @@ void printIncomingTransfer(CryptoNote::WalletTransaction t, CryptoNote::INode &n
 }
 
 void listOutputs(CryptoNote::WalletGreen &wallet, CryptoNote::INode &node) {
-    auto outs = wallet.getUnspentOutputs(wallet.getAddress(0)).outs;
+    auto outs = wallet.getUnspentOutputs(wallet.getAddress(subWallet)).outs;
     size_t numOutputs = outs.size();
     if (numOutputs > 0) {
         std::sort(outs.begin(), outs.end(), [](const CryptoNote::TransactionOutputInformation& a, const CryptoNote::TransactionOutputInformation& b) {
@@ -952,20 +1030,201 @@ void listOutputs(CryptoNote::WalletGreen &wallet, CryptoNote::INode &node) {
     }
 }
 
-void listTransfers(bool incoming, bool outgoing, CryptoNote::WalletGreen &wallet, CryptoNote::INode &node) {
+void addAddress(CryptoNote::WalletGreen &wallet) {
+   std::string address = wallet.createAddress();
+   std::cout << InformationMsg("Created subwallet with address ") << SuccessMsg(address) << InformationMsg(".") << std::endl;
+   return;
+}
+
+void listAddresses(CryptoNote::WalletGreen &wallet) {
+    std::cout << InformationMsg("List of subwallets:") << std::endl
+              << InformationMsg("-------------------") << std::endl;
+
+    for (size_t i = 0; i < wallet.getAddressCount(); i++) {
+        std::cout << InformationMsg(std::to_string(i) + ") ") << SuccessMsg(wallet.getAddress(i)) << std::endl;
+    }
+}
+
+void recoverAddress(std::shared_ptr<WalletInfo> &walletInfo, CryptoNote::INode &node) {
+    Crypto::SecretKey privateSpendKey = getPrivateKey("Private Spend Key: ");
+    std::string address = walletInfo->wallet.createAddress(privateSpendKey);
+    std::cout << InformationMsg("Recovering subwallet with address ") << SuccessMsg(address) << InformationMsg("... Rescanning for transactions might take a few minutes.") << std::endl;
+    std::cout << InformationMsg("Use the ") << SuggestionMsg("bc_height") << InformationMsg(" command to see the progress.") << std::endl;
+}
+
+void recoverAddress(std::shared_ptr<WalletInfo> &walletInfo, CryptoNote::INode &node, std::vector<std::string> args) {
+    if (args.size() == 0) {
+        std::cout << WarningMsg("You must specify private spend key of subwallet to recover!") << std::endl;
+    }
+    if (args.size() > 1) {
+        std::cout << WarningMsg("Too many parameters, specify only private spend key of subwallet to recover!") << std::endl;
+    }
+    std::string privateKeyString = args[0];
+    Crypto::SecretKey privateKey;
+
+    boost::algorithm::trim(privateKeyString);
+
+    if (verifyPrivateKey(privateKeyString, privateKey)) {
+        std::string address = walletInfo->wallet.createAddress(privateKey);
+        std::cout << InformationMsg("Recovering subwallet with address ") << SuccessMsg(address) << InformationMsg("... Rescanning for transactions might take a few minutes.") << std::endl;
+        std::cout << InformationMsg("Use the ") << SuggestionMsg("bc_height") << InformationMsg(" command to see the progress.") << std::endl;
+    }
+}
+
+size_t getSubWallet(CryptoNote::WalletGreen &wallet, bool del) {
+    std::string reply;
+    size_t index = 0;
+    listAddresses(wallet);
+    while (true) {
+        std::cout << (del ? InformationMsg("Which subwallet do you want to delete: ") :
+                            InformationMsg("Which subwallet do you want to select: "));
+        std::getline(std::cin, reply);
+        if (reply.length() == 97 && reply.substr(0, 2) == "TA") {
+            for (size_t i = 0; i < wallet.getAddressCount(); i++) {
+                if (wallet.getAddress(i) == reply) return i;
+            }
+        }
+        try {
+            index = (size_t) std::stoull(reply);
+            if (index >= wallet.getAddressCount()) {
+                continue;
+            }
+        } catch (...) {
+            continue;
+        }
+        break;
+    }
+    return index;
+}
+
+size_t findAddressIndex(CryptoNote::WalletGreen &wallet, const std::string &address) {
+    size_t index;
+    if (address.length() == 97 && address.substr(0, 2) == "TA") {
+        for (size_t i = 0; i < wallet.getAddressCount(); i++) {
+            if (wallet.getAddress(i) == address) {
+                return i;
+            }
+        }
+        std::cout << WarningMsg("Invalid address or address not found in wallet file!") << std::endl;
+    } else {
+        try {
+            index = (size_t) std::stoull(address);
+            if (index < wallet.getAddressCount()) {
+                return index;
+            }
+            std::cout << WarningMsg("Invalid subwallet index!") << std::endl;
+        } catch (...) {
+           std::cout << WarningMsg("Invalid address!") << std::endl;
+        }
+    }
+    return invalidIndex;
+}
+
+void deleteAddress(CryptoNote::WalletGreen &wallet) {
+    size_t index = getSubWallet(wallet, true);
+    if (index != 0) {
+        std::string address = wallet.getAddress(index);
+        wallet.deleteAddress(address);
+        std::cout << InformationMsg("Deleted subwallet with address ") << SuccessMsg(address);
+        if (subWallet == index) {
+            subWallet--;
+            std::cout << InformationMsg(", new current subwallet is address ") << SuccessMsg(wallet.getAddress(subWallet));
+        }
+        std::cout << InformationMsg(".") << std::endl;
+    } else {
+        std::cout << WarningMsg("Can't delete primary address!");
+    }
+}
+
+void deleteAddress(CryptoNote::WalletGreen &wallet, std::vector<std::string> args) {
+    if (args.size() == 0) {
+        std::cout << WarningMsg("You must specify wallet address to delete!") << std::endl;
+        return;
+    }
+    if (args.size() > 1) {
+        std::cout << WarningMsg("Too many parameters, please only specify wallet address to delete!") << std::endl;
+        return;
+    }
+    size_t index = findAddressIndex(wallet, args[0]);
+    if (index == invalidIndex) {
+        return;
+    }
+    if (index != 0) {
+        std::string address = wallet.getAddress(index);
+        wallet.deleteAddress(address);
+        std::cout << InformationMsg("Deleted subwallet with address ") << SuccessMsg(address);
+        if (subWallet == index) {
+            subWallet--;
+            std::cout << InformationMsg(", new current subwallet is address ") << SuccessMsg(wallet.getAddress(subWallet));
+        }
+        std::cout << InformationMsg(".") << std::endl;
+    } else {
+        std::cout << WarningMsg("Can't delete primary address!");
+    }
+}
+
+void selectAddress(CryptoNote::WalletGreen &wallet) {
+    size_t index = getSubWallet(wallet, false);
+    if (index != subWallet) {
+         subWallet = index;
+         std::cout << InformationMsg("Current subwallet is address ") << SuccessMsg(wallet.getAddress(subWallet)) << InformationMsg(".") << std::endl;
+    }
+}
+
+void selectAddress(CryptoNote::WalletGreen &wallet, std::vector<std::string> args) {
+    if (args.size() == 0) {
+        std::cout << WarningMsg("You must specify wallet address to select!") << std::endl;
+        return;
+    }
+    if (args.size() > 1) {
+        std::cout << WarningMsg("Too many parameters, please only specify wallet address to select!") << std::endl;
+        return;
+    }
+    size_t index = findAddressIndex(wallet, args[0]);
+    if (index == invalidIndex) {
+        return;
+    }
+    if (index != subWallet) {
+         subWallet = index;
+         std::cout << InformationMsg("Current subwallet is address ") << SuccessMsg(wallet.getAddress(subWallet)) << InformationMsg(".") << std::endl;
+    }
+}
+
+std::vector<CryptoNote::WalletTransaction> filterTransactions(CryptoNote::WalletGreen &wallet) {
+    std::vector<CryptoNote::WalletTransaction> transactions;
     size_t numTransactions = wallet.getTransactionCount();
+    std::string address = wallet.getAddress(subWallet);
+    for (size_t i = 0; i < numTransactions; i++) {
+        CryptoNote::WalletTransaction t = wallet.getTransaction(i);
+        CryptoNote::WalletTransactionWithTransfers tt = wallet.getTransaction(t.hash);
+        size_t numTransfers = tt.transfers.size();
+        for (size_t j = 0; j < numTransfers; j++) {
+            CryptoNote::WalletTransfer wt = tt.transfers[j];
+            if (wt.address == address) {
+                transactions.push_back(t);
+                break;
+            }
+        }
+    }
+    return transactions;
+}
+
+void listTransfers(bool incoming, bool outgoing, CryptoNote::WalletGreen &wallet, CryptoNote::INode &node) {
+    auto transactions = filterTransactions(wallet);
+    size_t numTransactions = transactions.size();
     int64_t totalSpent = 0;
     int64_t totalReceived = 0;
 
     for (size_t i = 0; i < numTransactions; i++) {
-        CryptoNote::WalletTransaction t = wallet.getTransaction(i);
+        CryptoNote::WalletTransaction t = transactions[i];
+        int64_t amount = filterAmounts(t, wallet);
 
-        if (t.totalAmount < 0 && outgoing) {
-            printOutgoingTransfer(t, node);
-            totalSpent += -t.totalAmount;
-        } else if (t.totalAmount > 0 && incoming) {
-            printIncomingTransfer(t, node);
-            totalReceived += t.totalAmount;
+        if (amount < 0 && outgoing) {
+            printOutgoingTransfer(t, node, wallet, false);
+            totalSpent += -amount;
+        } else if (amount > 0 && incoming) {
+            printIncomingTransfer(t, node, wallet, false);
+            totalReceived += amount;
         }
     }
 
@@ -1072,9 +1331,10 @@ void changePassword(std::shared_ptr<WalletInfo> &walletInfo, std::vector<std::st
 
 void estimateFusion(std::shared_ptr<WalletInfo> &walletInfo) {
     std::vector<std::string> addresses;
-    addresses.push_back(walletInfo->walletAddress);
+    std::string address = walletInfo->wallet.getAddress(subWallet);
+    addresses.push_back(address);
     walletInfo->wallet.updateInternalCache();
-    auto result = walletInfo->wallet.estimate(walletInfo->wallet.getActualBalance(), addresses);
+    auto result = walletInfo->wallet.estimate(getTotalActualBalance(walletInfo->wallet, addresses), addresses);
     std::cout << "Optimizable outputs: " << InformationMsg(std::to_string(result.fusionReadyCount)) << std::endl
               << "Total outputs: " << InformationMsg(std::to_string(result.totalOutputCount)) << std::endl;
 }
@@ -1175,9 +1435,9 @@ void findNewTransactions(CryptoNote::INode &node, std::shared_ptr<WalletInfo> &w
                                   << std::endl;
 
                         if (t.totalAmount < 0) {
-                            printOutgoingTransfer(t, node);
+                            printOutgoingTransfer(t, node, walletInfo->wallet, true);
                         } else {
-                            printIncomingTransfer(t, node);
+                            printIncomingTransfer(t, node, walletInfo->wallet, true);
                         }
                     }
                 }
@@ -1225,6 +1485,9 @@ ColouredMsg getPrompt(std::shared_ptr<WalletInfo> &walletInfo) {
       shortName = shortName.substr(pos + 1, promptLength);
     } else if (shortName.length() > promptLength) {
       shortName = shortName.substr(0, promptLength);
+    }
+    if (walletInfo->wallet.getAddressCount() > 1) {
+      shortName += " " + std::to_string(subWallet) + "/" + std::to_string(walletInfo->wallet.getAddressCount() - 1);
     }
 
     return InformationMsg("[" + std::string(CryptoNote::CRYPTONOTE_TICKER) + " " + shortName + "]: ");

@@ -3,7 +3,7 @@ Copyright (C) 2018, The TurtleCoin developers
 Copyright (C) 2018, The PinkstarcoinV2 developers
 Copyright (C) 2018, The Bittorium developers
 Copyright (C) 2018, The Karbo developers
-Copyright (C) 2020, The Talleo developers
+Copyright (C) 2020-2021, The Talleo developers
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -82,6 +82,22 @@ void blockchainHeight(CryptoNote::INode &node, CryptoNote::WalletGreen &wallet);
 
 void listOutputs(CryptoNote::WalletGreen &wallet, CryptoNote::INode &node);
 
+void addAddress(CryptoNote::WalletGreen &wallet);
+
+void deleteAddress(CryptoNote::WalletGreen &wallet);
+
+void deleteAddress(CryptoNote::WalletGreen &wallet, std::vector<std::string> args);
+
+void listAddresses(CryptoNote::WalletGreen &wallet);
+
+void recoverAddress(std::shared_ptr<WalletInfo> &walletInfo, CryptoNote::INode &node);
+
+void recoverAddress(std::shared_ptr<WalletInfo> &walletInfo, CryptoNote::INode &node, std::vector<std::string> args);
+
+void selectAddress(CryptoNote::WalletGreen &wallet);
+
+void selectAddress(CryptoNote::WalletGreen &wallet, std::vector<std::string> args);
+
 void listTransfers(bool incoming, bool outgoing, CryptoNote::WalletGreen &wallet, CryptoNote::INode &node);
 
 void estimateFusion(std::shared_ptr<WalletInfo> &walletInfo);
@@ -92,9 +108,9 @@ void reset(CryptoNote::INode &node, std::shared_ptr<WalletInfo> &walletInfo);
 
 void changePassword(std::shared_ptr<WalletInfo> &walletInfo, std::vector<std::string> args);
 
-void printOutgoingTransfer(CryptoNote::WalletTransaction t, CryptoNote::INode &node);
+void printOutgoingTransfer(const CryptoNote::WalletTransaction &t, CryptoNote::INode &node, CryptoNote::WalletGreen &wallet, bool allAddresses);
 
-void printIncomingTransfer(CryptoNote::WalletTransaction t, CryptoNote::INode &node);
+void printIncomingTransfer(const CryptoNote::WalletTransaction &t, CryptoNote::INode &node, CryptoNote::WalletGreen &wallet, bool allAddresses);
 
 void checkForNewTransactions(std::shared_ptr<WalletInfo> &walletInfo);
 
