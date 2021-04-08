@@ -32,6 +32,7 @@
 
 #include "crypto/crypto.h"
 #include "CryptoNote.h"
+#include "version.h"
 #include "CryptoNoteCore/CryptoNoteFormatUtils.h"
 #include "CryptoNoteCore/CryptoNoteBasicImpl.h"
 #include "CryptoNoteCore/TransactionExtra.h"
@@ -1153,6 +1154,16 @@ std::error_code WalletService::getStatus(uint32_t& blockCount, uint32_t& knownBl
     return make_error_code(CryptoNote::error::INTERNAL_WALLET_ERROR);
   }
 
+  return std::error_code();
+}
+
+std::error_code WalletService::getVersion(std::string& versionString, uint64_t& versionNumber) {
+  versionString = PROJECT_VERSION "." PROJECT_VERSION_BUILD_NO;
+  const uint64_t verMajor = APP_VER_MAJOR;
+  const uint64_t verMinor = APP_VER_MINOR;
+  const uint64_t verRev = APP_VER_REV;
+  const uint64_t verBuild = APP_VER_BUILD;
+  versionNumber = (verMajor << 32) | (verMinor << 24) | (verRev << 16) | verBuild;
   return std::error_code();
 }
 

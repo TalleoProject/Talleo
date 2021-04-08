@@ -95,6 +95,7 @@ private:
   std::error_code handleGetViewKeys(const GetViewKeys::Request& request, GetViewKeys::Response& response);
   std::error_code handleGetMnemonicSeed(const GetMnemonicSeed::Request& request, GetMnemonicSeed::Response& response);
   std::error_code handleGetStatus(const GetStatus::Request& request, GetStatus::Response& response);
+  std::error_code handleGetVersion(const GetVersion::Request& request, GetVersion::Response& response);
   std::error_code handleGetAddresses(const GetAddresses::Request& request, GetAddresses::Response& response);
 
   std::error_code handleSendFusionTransaction(const SendFusionTransaction::Request& request, SendFusionTransaction::Response& response);

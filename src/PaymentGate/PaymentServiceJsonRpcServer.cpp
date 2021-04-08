@@ -58,6 +58,7 @@ PaymentServiceJsonRpcServer::PaymentServiceJsonRpcServer(System::Dispatcher& sys
   handlers.emplace("getViewKeys", jsonHandler<GetViewKeys::Request, GetViewKeys::Response>(std::bind(&PaymentServiceJsonRpcServer::handleGetViewKeys, this, std::placeholders::_1, std::placeholders::_2)));
   handlers.emplace("getMnemonicSeed", jsonHandler<GetMnemonicSeed::Request, GetMnemonicSeed::Response>(std::bind(&PaymentServiceJsonRpcServer::handleGetMnemonicSeed, this, std::placeholders::_1, std::placeholders::_2)));
   handlers.emplace("getStatus", jsonHandler<GetStatus::Request, GetStatus::Response>(std::bind(&PaymentServiceJsonRpcServer::handleGetStatus, this, std::placeholders::_1, std::placeholders::_2)));
+  handlers.emplace("getVersion", jsonHandler<GetVersion::Request, GetVersion::Response>(std::bind(&PaymentServiceJsonRpcServer::handleGetVersion, this, std::placeholders::_1, std::placeholders::_2)));
   handlers.emplace("getAddresses", jsonHandler<GetAddresses::Request, GetAddresses::Response>(std::bind(&PaymentServiceJsonRpcServer::handleGetAddresses, this, std::placeholders::_1, std::placeholders::_2)));
   handlers.emplace("sendFusionTransaction", jsonHandler<SendFusionTransaction::Request, SendFusionTransaction::Response>(std::bind(&PaymentServiceJsonRpcServer::handleSendFusionTransaction, this, std::placeholders::_1, std::placeholders::_2)));
   handlers.emplace("estimateFusion", jsonHandler<EstimateFusion::Request, EstimateFusion::Response>(std::bind(&PaymentServiceJsonRpcServer::handleEstimateFusion, this, std::placeholders::_1, std::placeholders::_2)));
@@ -231,6 +232,10 @@ std::error_code PaymentServiceJsonRpcServer::handleGetMnemonicSeed(const GetMnem
 
 std::error_code PaymentServiceJsonRpcServer::handleGetStatus(const GetStatus::Request& request, GetStatus::Response& response) {
   return service.getStatus(response.blockCount, response.knownBlockCount, response.lastBlockHash, response.peerCount);
+}
+
+std::error_code PaymentServiceJsonRpcServer::handleGetVersion(const GetVersion::Request& request, GetVersion::Response& response) {
+  return service.getVersion(response.versionString, response.versionNumber);
 }
 
 std::error_code PaymentServiceJsonRpcServer::handleGetAddresses(const GetAddresses::Request& request, GetAddresses::Response& response) {

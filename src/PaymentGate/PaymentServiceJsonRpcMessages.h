@@ -1,4 +1,5 @@
 // Copyright (c) 2012-2017, The CryptoNote developers, The Bytecoin developers
+// Copyright (c) 2021, The Talleo developers
 //
 // This file is part of Bytecoin.
 //
@@ -130,6 +131,19 @@ struct GetStatus {
     uint32_t knownBlockCount;
     std::string lastBlockHash;
     uint32_t peerCount;
+
+    void serialize(CryptoNote::ISerializer& serializer);
+  };
+};
+
+struct GetVersion {
+  struct Request {
+    void serialize(CryptoNote::ISerializer& serializer);
+  };
+
+  struct Response {
+    std::string versionString;
+    uint64_t versionNumber;
 
     void serialize(CryptoNote::ISerializer& serializer);
   };

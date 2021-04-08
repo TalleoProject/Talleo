@@ -91,6 +91,14 @@ void GetStatus::Response::serialize(CryptoNote::ISerializer& serializer) {
   serializer(peerCount, "peerCount");
 }
 
+void GetVersion::Request::serialize(CryptoNote::ISerializer& serializer) {
+}
+
+void GetVersion::Response::serialize(CryptoNote::ISerializer& serializer) {
+  serializer(versionString, "versionString");
+  serializer(versionNumber, "versionNumber");
+}
+
 void GetAddresses::Request::serialize(CryptoNote::ISerializer& serializer) {
 }
 
