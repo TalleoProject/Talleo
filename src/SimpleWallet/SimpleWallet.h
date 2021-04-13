@@ -114,6 +114,8 @@ void printIncomingTransfer(const CryptoNote::WalletTransaction &t, CryptoNote::I
 
 void checkForNewTransactions(std::shared_ptr<WalletInfo> &walletInfo);
 
+void checkForUnoptimizedOutputs(std::shared_ptr<WalletInfo> &walletInfo);
+
 void confirmPassword(std::string);
 
 void connectingMsg();

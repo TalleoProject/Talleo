@@ -675,6 +675,7 @@ std::string getInputAndDoWorkWhileIdle(std::shared_ptr<WalletInfo> &walletInfo) 
         if ((currentTime - lastUpdated) > std::chrono::seconds(5)) {
             lastUpdated = currentTime;
             checkForNewTransactions(walletInfo);
+            checkForUnoptimizedOutputs(walletInfo);
         }
 
         /* Sleep for enough for it to not be noticeable when the user enters

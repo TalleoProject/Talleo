@@ -288,6 +288,16 @@ size_t getFusionReadyCount(CryptoNote::WalletGreen &wallet, const std::vector<st
     return result.fusionReadyCount;
 }
 
+void checkForUnoptimizedOutputs(std::shared_ptr<WalletInfo> &walletInfo) {
+    std::vector<std::string> addresses;
+    std::string sourceAddress = walletInfo->wallet.getAddress(subWallet);
+    addresses.push_back(sourceAddress);
+    size_t outputs = getFusionReadyCount(walletInfo->wallet, addresses);
+    if (outputs > 0) {
+        makeFusionTransaction(walletInfo->wallet, addresses, getTotalActualBalance(walletInfo->wallet, addresses));
+    }
+}
+
 void quickOptimize(CryptoNote::WalletGreen &wallet) {
     std::vector<std::string> addresses;
     std::string sourceAddress = wallet.getAddress(subWallet);
