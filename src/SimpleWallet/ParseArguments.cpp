@@ -2,7 +2,7 @@
 Copyright (C) 2018, The TurtleCoin developers
 Copyright (C) 2018, The PinkstarcoinV2 developers
 Copyright (C) 2018, The Bittorium developers
-Copyright (C) 2019, The Talleo developers
+Copyright (C) 2019-2021, The Talleo developers
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -51,6 +51,8 @@ Config parseArguments(int argc, char **argv)
     config.walletFile = "";
     config.walletPass = "";
 
+    config.backgroundOptimize = true;
+
     if (cmdOptionExists(argv, argv+argc, "-h")
      || cmdOptionExists(argv, argv+argc, "--help"))
     {
@@ -73,8 +75,7 @@ Config parseArguments(int argc, char **argv)
 
         if (!wallet)
         {
-            std::cout << "--wallet-file was specified, but no wallet file "
-                      << "was given!" << std::endl;
+            std::cout << "--wallet-file was specified, but no wallet file was given!" << std::endl;
 
             helpMessage();
             config.exit = true;
@@ -91,8 +92,7 @@ Config parseArguments(int argc, char **argv)
 
         if (!password)
         {
-            std::cout << "--password was specified, but no password was "
-                      << "given!" << std::endl;
+            std::cout << "--password was specified, but no password was given!" << std::endl;
 
             helpMessage();
             config.exit = true;
@@ -110,8 +110,7 @@ Config parseArguments(int argc, char **argv)
         /* No url following --remote-daemon */
         if (!url)
         {
-            std::cout << "--remote-daemon was specified, but no daemon was "
-                      << "given!" << std::endl;
+            std::cout << "--remote-daemon was specified, but no daemon was given!" << std::endl;
 
             helpMessage();
 
@@ -135,8 +134,7 @@ Config parseArguments(int argc, char **argv)
                 config.host = urlString.substr(0, splitter);
 
                 /* Port is everything after ":" */
-                std::string port = urlString.substr(splitter + 1,
-                                                    std::string::npos);
+                std::string port = urlString.substr(splitter + 1, std::string::npos);
 
                 try
                 {
@@ -151,32 +149,30 @@ Config parseArguments(int argc, char **argv)
         }
     }
 
+    if (cmdOptionExists(argv, argv+argc, "--disable-background-optimize"))
+    {
+        config.backgroundOptimize = false;
+    }
+
     return config;
 }
 
 void versionMessage() {
-    std::cout << "Talleo v" << PROJECT_VERSION << " SimpleWallet"
-              << std::endl;
+    std::cout << "Talleo v" << PROJECT_VERSION << " SimpleWallet" << std::endl;
 }
 
 void helpMessage()
 {
     versionMessage();
 
-    std::cout << std::endl << "simplewallet [--version] [--help] "
-              << "[--remote-daemon <url>] [--wallet-file <file>] "
-              << "[--password <pass>]"
-              << std::endl << std::endl
+    std::cout << std::endl
+              << "simplewallet [--version] [--help] [--remote-daemon <url>] [--wallet-file <file>] [--password <pass>] [--disable-background-optimize]" << std::endl
+              << std::endl
               << "Commands:" << std::endl
-              << "  -h, " << std::left << std::setw(25) << "--help" << "Display this help message and exit"
-              << std::endl << "  -v, " << std::left << std::setw(25)
-              << "--version" << "Display the version information and exit"
-              << std::endl << "      " << std::left << std::setw(25)
-              << "--remote-daemon <url>" << "Connect to the remote daemon at "
-              << "<url>"
-              << std::endl << "      " << std::left << std::setw(25)
-              << "--wallet-file <file>" << "Open the wallet <file>"
-              << std::endl << "      " << std::left << std::setw(25)
-              << "--password <pass>" << "Use the password <pass> to open the "
-              << "wallet" << std::endl;
+              << "  -h, " << std::left << std::setw(33) << "--help" << "Display this help message and exit" << std::endl
+              << "  -v, " << std::left << std::setw(33) << "--version" << "Display the version information and exit" << std::endl
+              << "      " << std::left << std::setw(33) << "--remote-daemon <url>" << "Connect to the remote daemon at <url>" << std::endl
+              << "      " << std::left << std::setw(33) << "--wallet-file <file>" << "Open the wallet <file>" << std::endl
+              << "      " << std::left << std::setw(33) << "--password <pass>" << "Use the password <pass> to open the wallet" << std::endl
+              << "      " << std::left << std::setw(33) << "--disable-background-optimize" << "Disable background wallet optimization" << std::endl;
 }

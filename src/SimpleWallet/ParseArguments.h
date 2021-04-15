@@ -2,6 +2,7 @@
 Copyright (C) 2018, The TurtleCoin developers
 Copyright (C) 2018, The PinkstarcoinV2 developers
 Copyright (C) 2018, The Bittorium developers
+Copyright (c) 2021, The Talleo developers
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -36,6 +37,8 @@ struct Config {
 
     std::string walletFile;
     std::string walletPass;
+
+    bool backgroundOptimize;
 };
 
 char* getCmdOption(char ** begin, char ** end, const std::string & option);

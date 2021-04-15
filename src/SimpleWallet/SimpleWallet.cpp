@@ -40,6 +40,8 @@ std::string remote_fee_address;
 size_t subWallet = 0;
 // Subwallet index that shouldn't exist and can be used as error response
 const size_t invalidIndex = std::numeric_limits<size_t>::max();
+// Background wallet optimization
+bool backgroundOptimize = true;
 
 int main(int argc, char **argv) {
     /* On ctrl+c the program seems to throw "simplewallet.exe has stopped
@@ -57,6 +59,8 @@ int main(int argc, char **argv) {
     if (config.exit) {
         return 0;
     }
+
+    backgroundOptimize = config.backgroundOptimize;
 
     /* Only log to file so we don't have crap filling up the terminal */
     Logging::LoggerManager logManager;
@@ -675,7 +679,9 @@ std::string getInputAndDoWorkWhileIdle(std::shared_ptr<WalletInfo> &walletInfo) 
         if ((currentTime - lastUpdated) > std::chrono::seconds(5)) {
             lastUpdated = currentTime;
             checkForNewTransactions(walletInfo);
-            checkForUnoptimizedOutputs(walletInfo);
+            if (backgroundOptimize) {
+                checkForUnoptimizedOutputs(walletInfo);
+            }
         }
 
         /* Sleep for enough for it to not be noticeable when the user enters
