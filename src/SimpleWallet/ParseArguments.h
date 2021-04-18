@@ -41,6 +41,7 @@ struct Config {
     bool backgroundOptimize;
 
     std::string logFile;
+    int logLevel;
 };
 
 char* getCmdOption(char ** begin, char ** end, const std::string & option);

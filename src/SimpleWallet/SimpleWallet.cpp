@@ -64,10 +64,7 @@ int main(int argc, char **argv) {
 
     /* Only log to file so we don't have crap filling up the terminal */
     Logging::LoggerManager logManager;
-    /* Should we maybe change this to INFO? On the one hand, DEBUGGING really
-       spams the file, on the other hand, it exposes a lot of information
-       that might help more devs debug a users issues. */
-    logManager.setMaxLevel(Logging::DEBUGGING);
+    logManager.setMaxLevel(Logging::Level(config.logLevel));
 
     Logging::FileLogger fileLogger;
     fileLogger.init(config.logFile);

@@ -20,6 +20,8 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 #include "ParseArguments.h"
 
+#include "Logging/ILogger.h"
+
 /* Thanks to https://stackoverflow.com/users/85381/iain for this small command
    line parsing snippet! https://stackoverflow.com/a/868894/8737306 */
 char* getCmdOption(char ** begin, char ** end, const std::string & option)
@@ -54,6 +56,7 @@ Config parseArguments(int argc, char **argv)
     config.backgroundOptimize = true;
 
     config.logFile = "simplewallet.log";
+    config.logLevel = Logging::DEBUGGING;
 
     if (cmdOptionExists(argv, argv+argc, "-h")
      || cmdOptionExists(argv, argv+argc, "--help"))
@@ -173,6 +176,32 @@ Config parseArguments(int argc, char **argv)
         config.logFile = std::string(logFile);
     }
 
+    if (cmdOptionExists(argv, argv+argc, "--log-level"))
+    {
+        char *logLevel = getCmdOption(argv, argv + argc, "--log-level");
+
+        if (!logLevel)
+        {
+            std::cout << "--log-level was specified, but no level was given!" << std::endl;
+
+            helpMessage();
+            config.exit = true;
+            return config;
+        }
+
+        int level = atoi(logLevel);
+
+        if (!std::isdigit(static_cast<unsigned char>(logLevel[0])) || logLevel[1] != 0 || level < Logging::FATAL || level > Logging::TRACE) {
+            std::cout << "Invalid logging level was given, it should be a number between " << std::to_string(Logging::FATAL) << " and " << std::to_string(Logging::TRACE) << "!" << std::endl;
+
+            helpMessage();
+            config.exit = true;
+            return config;
+        }
+
+        config.logLevel = level;
+    }
+
     return config;
 }
 
@@ -185,7 +214,7 @@ void helpMessage()
     versionMessage();
 
     std::cout << std::endl
-              << "simplewallet [--version] [--help] [--remote-daemon <url>] [--wallet-file <file>] [--password <pass>] [--disable-background-optimize] [--log-file <file>]" << std::endl
+              << "simplewallet [--version] [--help] [--remote-daemon <url>] [--wallet-file <file>] [--password <pass>] [--disable-background-optimize] [--log-file <file>] [--log-level <level>]" << std::endl
               << std::endl
               << "Commands:" << std::endl
               << "  -h, " << std::left << std::setw(33) << "--help" << "Display this help message and exit" << std::endl
@@ -194,5 +223,6 @@ void helpMessage()
               << "      " << std::left << std::setw(33) << "--wallet-file <file>" << "Open the wallet <file>" << std::endl
               << "      " << std::left << std::setw(33) << "--password <pass>" << "Use the password <pass> to open the wallet" << std::endl
               << "      " << std::left << std::setw(33) << "--disable-background-optimize" << "Disable background wallet optimization" << std::endl
-              << "      " << std::left << std::setw(33) << "--log-file <file>" << "Write logs to file <file>" << std::endl;
+              << "      " << std::left << std::setw(33) << "--log-file <file>" << "Write logs to file <file>" << std::endl
+              << "      " << std::left << std::setw(33) << "--log-level <level>" << "Set logging level to <level>" << std::endl;
 }
