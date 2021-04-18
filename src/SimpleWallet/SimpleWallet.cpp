@@ -70,7 +70,7 @@ int main(int argc, char **argv) {
     logManager.setMaxLevel(Logging::DEBUGGING);
 
     Logging::FileLogger fileLogger;
-    fileLogger.init("simplewallet.log");
+    fileLogger.init(config.logFile);
     logManager.addLogger(fileLogger);
 
     Logging::LoggerRef logger(logManager, "simplewallet");

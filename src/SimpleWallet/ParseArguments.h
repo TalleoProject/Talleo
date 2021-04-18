@@ -39,6 +39,8 @@ struct Config {
     std::string walletPass;
 
     bool backgroundOptimize;
+
+    std::string logFile;
 };
 
 char* getCmdOption(char ** begin, char ** end, const std::string & option);

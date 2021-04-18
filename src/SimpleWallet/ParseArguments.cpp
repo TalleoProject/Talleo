@@ -53,6 +53,8 @@ Config parseArguments(int argc, char **argv)
 
     config.backgroundOptimize = true;
 
+    config.logFile = "simplewallet.log";
+
     if (cmdOptionExists(argv, argv+argc, "-h")
      || cmdOptionExists(argv, argv+argc, "--help"))
     {
@@ -154,6 +156,23 @@ Config parseArguments(int argc, char **argv)
         config.backgroundOptimize = false;
     }
 
+    if (cmdOptionExists(argv, argv+argc, "--log-file"))
+    {
+        char *logFile = getCmdOption(argv, argv + argc, "--log-file");
+
+        /* No log filename after --log-file */
+        if (!logFile)
+        {
+            std::cout << "--log-file was specified, but no filename was given!" << std::endl;
+
+            helpMessage();
+            config.exit = true;
+            return config;
+        }
+
+        config.logFile = std::string(logFile);
+    }
+
     return config;
 }
 
@@ -166,7 +185,7 @@ void helpMessage()
     versionMessage();
 
     std::cout << std::endl
-              << "simplewallet [--version] [--help] [--remote-daemon <url>] [--wallet-file <file>] [--password <pass>] [--disable-background-optimize]" << std::endl
+              << "simplewallet [--version] [--help] [--remote-daemon <url>] [--wallet-file <file>] [--password <pass>] [--disable-background-optimize] [--log-file <file>]" << std::endl
               << std::endl
               << "Commands:" << std::endl
               << "  -h, " << std::left << std::setw(33) << "--help" << "Display this help message and exit" << std::endl
@@ -174,5 +193,6 @@ void helpMessage()
               << "      " << std::left << std::setw(33) << "--remote-daemon <url>" << "Connect to the remote daemon at <url>" << std::endl
               << "      " << std::left << std::setw(33) << "--wallet-file <file>" << "Open the wallet <file>" << std::endl
               << "      " << std::left << std::setw(33) << "--password <pass>" << "Use the password <pass> to open the wallet" << std::endl
-              << "      " << std::left << std::setw(33) << "--disable-background-optimize" << "Disable background wallet optimization" << std::endl;
+              << "      " << std::left << std::setw(33) << "--disable-background-optimize" << "Disable background wallet optimization" << std::endl
+              << "      " << std::left << std::setw(33) << "--log-file <file>" << "Write logs to file <file>" << std::endl;
 }
