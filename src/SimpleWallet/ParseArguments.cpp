@@ -56,7 +56,7 @@ Config parseArguments(int argc, char **argv)
     config.backgroundOptimize = true;
 
     config.logFile = "simplewallet.log";
-    config.logLevel = Logging::DEBUGGING;
+    config.logLevel = Logging::INFO;
 
     if (cmdOptionExists(argv, argv+argc, "-h")
      || cmdOptionExists(argv, argv+argc, "--help"))
