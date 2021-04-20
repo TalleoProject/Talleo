@@ -450,13 +450,15 @@ void fusionTX(CryptoNote::WalletGreen &wallet, CryptoNote::TransactionParameters
               << "Please wait, this will take some time..." << std::endl
               << std::endl;
 
-    /* We could check if optimization succeeded, but it's not really needed because we then check if the transaction is too large...
-       it could have  potentially become valid because another payment came in. */
-    optimize(wallet, p.sourceAddresses, p.destinations[0].amount + p.fee);
+    uint64_t needed = p.destinations[0].amount + p.fee;
+
+    while (optimize(wallet, p.sourceAddresses, needed)) {
+        std::this_thread::sleep_for(std::chrono::seconds(5));
+    }
 
     auto startTime = std::chrono::system_clock::now();
 
-    while (getTotalActualBalance(wallet, p.sourceAddresses) < p.destinations[0].amount + p.fee) {
+    while (getTotalActualBalance(wallet, p.sourceAddresses) < needed) {
         /* Break after a minute just in case something has gone wrong */
         if ((std::chrono::system_clock::now() - startTime) > std::chrono::minutes(1)) {
             std::cout << WarningMsg("Fusion transactions have completed, however available balance is less than transfer amount specified.") << std::endl
