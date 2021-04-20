@@ -26,6 +26,8 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 #include <SimpleWallet/Transfer.h>
 #include <SimpleWallet/SubWallet.h>
+#include <Common/StringTools.h>
+#include <boost/algorithm/string.hpp>
 
 #include <math.h>
 
@@ -34,47 +36,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 // Forward declaration
 extern std::string remote_fee_address;
 extern size_t subWallet;
-
-bool parseAmount(std::string strAmount, uint64_t &amount) {
-    boost::algorithm::trim(strAmount);
-    /* If the user entered thousand separators, remove them */
-    boost::erase_all(strAmount, ",");
-
-    size_t pointIndex = strAmount.find_first_of('.');
-    size_t fractionSize;
-    size_t numDecimalPlaces = 2;
-
-    if (std::string::npos != pointIndex) {
-        fractionSize = strAmount.size() - pointIndex - 1;
-
-        while (numDecimalPlaces < fractionSize && '0' == strAmount.back()) {
-            strAmount.erase(strAmount.size() - 1, 1);
-            fractionSize--;
-        }
-
-        if (numDecimalPlaces < fractionSize) {
-            return false;
-        }
-
-        strAmount.erase(pointIndex, 1);
-    } else {
-        fractionSize = 0;
-    }
-
-    if (strAmount.empty()) {
-        return false;
-    }
-
-    if (!std::all_of(strAmount.begin(), strAmount.end(), ::isdigit)) {
-        return false;
-    }
-
-    if (fractionSize < numDecimalPlaces) {
-        strAmount.append(numDecimalPlaces - fractionSize, '0');
-    }
-
-    return Common::fromString(strAmount, amount);
-}
+extern uint64_t optimizeThreshold;
 
 std::string join(std::vector<std::string>& v, const std::string& delim) {
    if (v.size() == 1) return v[0];
@@ -294,7 +256,8 @@ void checkForUnoptimizedOutputs(std::shared_ptr<WalletInfo> &walletInfo) {
     addresses.push_back(sourceAddress);
     size_t outputs = getFusionReadyCount(walletInfo->wallet, addresses);
     if (outputs > 0) {
-        makeFusionTransaction(walletInfo->wallet, addresses, getTotalActualBalance(walletInfo->wallet, addresses));
+        uint64_t threshold = (optimizeThreshold == 0) ? getTotalActualBalance(walletInfo->wallet, addresses) : optimizeThreshold;
+        makeFusionTransaction(walletInfo->wallet, addresses, threshold);
     }
 }
 
@@ -316,7 +279,8 @@ void quickOptimize(CryptoNote::WalletGreen &wallet) {
         return;
     }
 
-    if (!optimize(wallet, addresses, getTotalActualBalance(wallet, addresses))) {
+    uint64_t threshold = (optimizeThreshold == 0) ? getTotalActualBalance(wallet, addresses) : optimizeThreshold;
+    if (!optimize(wallet, addresses, threshold)) {
         std::cout << SuccessMsg("Wallet fully optimized!") << std::endl;
     } else {
         std::cout << SuccessMsg("Optimization completed!") << std::endl
@@ -341,11 +305,13 @@ void fullOptimize(CryptoNote::WalletGreen &wallet) {
         return;
     }
 
+    uint64_t threshold = (optimizeThreshold == 0) ? getTotalActualBalance(wallet, addresses) : optimizeThreshold;
+
     for (int i = 1;;i++) {
         std::cout << InformationMsg("Running optimization round ") << SuccessMsg(std::to_string(i)) << InformationMsg("...") << std::endl;
 
         /* Optimize as many times as possible until optimization is no longer possible. */
-        if (!optimize(wallet, addresses, getTotalActualBalance(wallet, addresses))) {
+        if (!optimize(wallet, addresses, threshold)) {
             break;
         }
     }

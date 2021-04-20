@@ -29,6 +29,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 #include <SimpleWallet/SubWallet.h>
 #include <cstring>
 #include <limits>
+#include <boost/algorithm/string.hpp>
 
 #include "Common/JsonValue.h"
 #include "Rpc/HttpClient.h"
@@ -42,6 +43,7 @@ size_t subWallet = 0;
 const size_t invalidIndex = std::numeric_limits<size_t>::max();
 // Background wallet optimization
 bool backgroundOptimize = true;
+uint64_t optimizeThreshold = 0;
 
 int main(int argc, char **argv) {
     /* On ctrl+c the program seems to throw "simplewallet.exe has stopped
@@ -61,6 +63,7 @@ int main(int argc, char **argv) {
     }
 
     backgroundOptimize = config.backgroundOptimize;
+    optimizeThreshold = config.optimizeThreshold;
 
     /* Only log to file so we don't have crap filling up the terminal */
     Logging::LoggerManager logManager;

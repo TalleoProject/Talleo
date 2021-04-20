@@ -39,6 +39,7 @@ struct Config {
     std::string walletPass;
 
     bool backgroundOptimize;
+    uint64_t optimizeThreshold;
 
     std::string logFile;
     int logLevel;

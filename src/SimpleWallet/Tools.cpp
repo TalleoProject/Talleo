@@ -2,7 +2,7 @@
 Copyright (C) 2018, The TurtleCoin developers
 Copyright (C) 2018, The PinkstarcoinV2 developers
 Copyright (C) 2018, The Bittorium developers
-Copyright (C) 2019, The Talleo developers
+Copyright (C) 2019-2021, The Talleo developers
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -19,7 +19,10 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <SimpleWallet/Tools.h>
+#include <Common/StringTools.h>
 #include <CryptoNoteConfig.h>
+
+#include <boost/algorithm/string.hpp>
 
 void confirmPassword(std::string walletPass) {
     /* Password container requires an rvalue, we don't want to wipe our current
@@ -112,4 +115,45 @@ bool confirm(std::string msg) {
                       << std::endl;
         }
     }
+}
+
+bool parseAmount(std::string strAmount, uint64_t &amount) {
+    boost::algorithm::trim(strAmount);
+    /* If the user entered thousand separators, remove them */
+    boost::erase_all(strAmount, ",");
+
+    size_t pointIndex = strAmount.find_first_of('.');
+    size_t fractionSize;
+    size_t numDecimalPlaces = CryptoNote::parameters::CRYPTONOTE_DISPLAY_DECIMAL_POINT;
+
+    if (std::string::npos != pointIndex) {
+        fractionSize = strAmount.size() - pointIndex - 1;
+
+        while (numDecimalPlaces < fractionSize && '0' == strAmount.back()) {
+            strAmount.erase(strAmount.size() - 1, 1);
+            fractionSize--;
+        }
+
+        if (numDecimalPlaces < fractionSize) {
+            return false;
+        }
+
+        strAmount.erase(pointIndex, 1);
+    } else {
+        fractionSize = 0;
+    }
+
+    if (strAmount.empty()) {
+        return false;
+    }
+
+    if (!std::all_of(strAmount.begin(), strAmount.end(), ::isdigit)) {
+        return false;
+    }
+
+    if (fractionSize < numDecimalPlaces) {
+        strAmount.append(numDecimalPlaces - fractionSize, '0');
+    }
+
+    return Common::fromString(strAmount, amount);
 }

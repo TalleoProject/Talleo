@@ -2,6 +2,7 @@
 Copyright (C) 2018, The TurtleCoin developers
 Copyright (C) 2018, The PinkstarcoinV2 developers
 Copyright (C) 2018, The Bittorium developers
+Copyright (C) 2021, The Talleo developers
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -22,16 +23,12 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 #include "CryptoNoteConfig.h"
 #include "IWallet.h"
 
-#include <Common/StringTools.h>
-
 #include <CryptoNoteCore/TransactionExtra.h>
 #include <CryptoNoteCore/CryptoNoteBasicImpl.h>
 
 #include <SimpleWallet/Tools.h>
 
 #include <Wallet/WalletGreen.h>
-
-#include <boost/algorithm/string.hpp>
 
 struct WalletInfo {
     WalletInfo(std::string walletFileName,
