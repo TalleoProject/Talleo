@@ -1,4 +1,5 @@
 // Copyright (c) 2012-2017, The CryptoNote developers, The Bytecoin developers
+// Copyright (c) 2021, The Talleo developers
 //
 // This file is part of Bytecoin.
 //
@@ -29,6 +30,8 @@
 #include "INodeStubs.h"
 #include "TestBlockchainGenerator.h"
 #include "EventWaiter.h"
+
+#include <thread>
 
 using namespace Crypto;
 using namespace CryptoNote;

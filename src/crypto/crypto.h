@@ -1,4 +1,5 @@
 // Copyright (c) 2012-2017, The CryptoNote developers, The Bytecoin developers
+// Copyright (c) 2021, The Talleo developers
 //
 // This file is part of Bytecoin.
 //
@@ -115,7 +116,7 @@ struct EllipticCurveScalar {
   public:
     typedef T result_type;
 
-#ifdef __clang__
+#if defined(__clang__) || (defined(__GNUC__) && __GNUC__ >= 11)
     constexpr static T min() {
       return (std::numeric_limits<T>::min)();
     }

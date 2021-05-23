@@ -1,4 +1,5 @@
 // Copyright (c) 2012-2017, The CryptoNote developers, The Bytecoin developers
+// Copyright (c) 2021, The Talleo developers
 //
 // This file is part of Bytecoin.
 //
@@ -22,6 +23,8 @@
 #include <System/InterruptedException.h>
 #include <System/Timer.h>
 #include <gtest/gtest.h>
+
+#include <thread>
 
 using namespace System;
 

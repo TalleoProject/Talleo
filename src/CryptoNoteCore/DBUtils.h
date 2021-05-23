@@ -1,4 +1,5 @@
 // Copyright (c) 2012-2017, The CryptoNote developers, The Bytecoin developers
+// Copyright (c) 2021, The Talleo developers
 //
 // This file is part of Bytecoin.
 //
@@ -97,7 +98,7 @@ namespace DB {
 
   template <class Key, class Value>
   void serializeKeys(std::vector<std::string>& rawKeys, const std::string keyPrefix, const std::unordered_map<Key, Value>& map) {
-    for (const std::pair<Key, Value>& kv : map) {
+    for (const std::pair<Key, Value> kv : map) {
       rawKeys.emplace_back(DB::serializeKey(keyPrefix, kv.first));
     }
   }

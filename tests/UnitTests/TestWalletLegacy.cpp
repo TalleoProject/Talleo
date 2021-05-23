@@ -1,4 +1,5 @@
 // Copyright (c) 2012-2017, The CryptoNote developers, The Bytecoin developers
+// Copyright (c) 2021, The Talleo developers
 //
 // This file is part of Bytecoin.
 //
@@ -20,6 +21,7 @@
 #include <future>
 #include <chrono>
 #include <array>
+#include <thread>
 
 #include "EventWaiter.h"
 #include "INode.h"

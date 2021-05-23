@@ -1,4 +1,5 @@
 // Copyright (c) 2012-2017, The CryptoNote developers, The Bytecoin developers
+// Copyright (c) 2021, The Talleo developers
 //
 // This file is part of Bytecoin.
 //
@@ -19,6 +20,7 @@
 #include "KVBinaryCommon.h"
 
 #include <cassert>
+#include <limits>
 #include <stdexcept>
 #include <Common/StreamTools.h>
 

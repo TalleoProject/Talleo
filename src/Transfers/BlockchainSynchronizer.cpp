@@ -1,5 +1,6 @@
 // Copyright (c) 2012-2017, The CryptoNote developers, The Bytecoin developers
 // Copyright (c) 2018-2019, The Bittorium developers
+// Copyright (c) 2021, The Talleo developers
 //
 // This file is part of Bytecoin.
 //
@@ -21,6 +22,7 @@
 #include <functional>
 #include <iostream>
 #include <sstream>
+#include <thread>
 #include <unordered_set>
 
 #include "Common/StreamTools.h"
