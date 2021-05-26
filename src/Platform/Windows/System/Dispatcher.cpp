@@ -1,4 +1,5 @@
 // Copyright (c) 2012-2017, The CryptoNote developers, The Bytecoin developers
+// Copyright (c) 2021, The Talleo developers
 //
 // This file is part of Bytecoin.
 //
@@ -77,12 +78,12 @@ Dispatcher::Dispatcher() {
         return;
       }
 
-      BOOL result2 = CloseHandle(completionPort);
-      assert(result2 == TRUE);
+      BOOL result3 = CloseHandle(completionPort);
+      assert(result3 == TRUE);
     }
 
     BOOL result2 = ConvertFiberToThread();
-    assert(result == TRUE);
+    assert(result2 == TRUE);
   }
 
   DeleteCriticalSection(reinterpret_cast<LPCRITICAL_SECTION>(criticalSection));
