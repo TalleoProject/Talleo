@@ -1393,6 +1393,7 @@ void findNewTransactions(CryptoNote::INode &node, std::shared_ptr<WalletInfo> &w
 
         localHeight = node.getLastLocalBlockHeight();
         remoteHeight = node.getLastKnownBlockHeight();
+        Common::Console::clearLine();
         std::cout << "\r" << SuccessMsg(std::to_string(walletHeight))
                   << " of " << InformationMsg(std::to_string(localHeight))
                   << std::flush;
