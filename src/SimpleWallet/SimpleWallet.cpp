@@ -982,7 +982,8 @@ void printOutgoingTransfer(const CryptoNote::WalletTransaction &t, CryptoNote::I
     int64_t amount = allWallets ? t.totalAmount : filterAmounts(t, wallet);
     if (amount == 0) return;
 
-    std::cout << WarningMsg("Outgoing transfer:") << std::endl
+    std::cout << std::endl
+              << WarningMsg("Outgoing transfer:") << std::endl
               << WarningMsg("Hash: " + Common::podToHex(t.hash)) << std::endl
               << WarningMsg("Spent: " + formatAmount(-amount - t.fee)) << std::endl
               << WarningMsg("Fee: " + formatAmount(t.fee)) << std::endl
@@ -1439,8 +1440,7 @@ void findNewTransactions(CryptoNote::INode &node, std::shared_ptr<WalletInfo> &w
                     /* Don't print out fusion transactions */
                     if (t.totalAmount != 0) {
                         std::cout << "\r"
-                                  << InformationMsg("New transaction found!") << std::endl
-                                  << std::endl;
+                                  << InformationMsg("New transaction found!") << std::endl;
 
                         if (t.totalAmount < 0) {
                             printOutgoingTransfer(t, node, walletInfo->wallet, true);
