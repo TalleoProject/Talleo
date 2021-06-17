@@ -755,6 +755,9 @@ void inputLoop(std::shared_ptr<WalletInfo> &walletInfo, CryptoNote::INode &node)
                 listTransfers(false, true, walletInfo->wallet, node);
             } else if (command == "list_outputs") {
                 listOutputs(walletInfo->wallet, node);
+            } else if (words[0] == "list_transfer") {
+                words.erase(words.begin());
+                listTransfer(words, walletInfo->wallet, node);
             } else if (command == "list_transfers") {
                 listTransfers(true, true, walletInfo->wallet, node);
             } else if (command == "transfer") {
@@ -799,6 +802,7 @@ void help(bool viewWallet) {
                   << SuccessMsg("select_address", 25) << "Select current subwallet" << std::endl
                   << SuccessMsg("transfer", 25) << "Send " << coinTicker << " to someone" << std::endl
                   << SuccessMsg("list_outputs", 25) << "Show unspent outputs" << std::endl
+                  << SuccessMsg("list_transfer", 25) << "Show transfer" << std::endl
                   << SuccessMsg("list_transfers", 25) << "Show all transfers" << std::endl
                   << SuccessMsg("quick_optimize", 25) << "Quickly optimize your wallet to send large amounts" << std::endl
                   << SuccessMsg("full_optimize", 25) << "Fully optimize your wallet to send large amounts" << std::endl
@@ -1215,6 +1219,37 @@ std::vector<CryptoNote::WalletTransaction> filterTransactions(CryptoNote::Wallet
         }
     }
     return transactions;
+}
+
+void listTransfer(std::vector<std::string> args, CryptoNote::WalletGreen &wallet, CryptoNote::INode &node) {
+    if (args.size() == 0) {
+        std::cout << WarningMsg("You must specify transaction hash!") << std::endl;
+        return;
+    }
+    if (args.size() > 1) {
+        std::cout << WarningMsg("Too many parameters, please only specify transaction hash!") << std::endl;
+        return;
+    }
+    Crypto::Hash txhash;
+    if (!Common::podFromHex(args[0], txhash)) {
+        std::cout << WarningMsg("Invalid transaction hash!") << std::endl;
+        return;
+    }
+    size_t numTransactions = wallet.getTransactionCount();
+    for (size_t i = 0; i < numTransactions; i++) {
+        CryptoNote::WalletTransaction t = wallet.getTransaction(i);
+        if (t.hash == txhash) {
+             int64_t amount = filterAmounts(t, wallet);
+
+             if (amount < 0) {
+                 printOutgoingTransfer(t, node, wallet, false);
+             } else if (amount > 0) {
+                 printIncomingTransfer(t, node, wallet, false);
+             }
+             return;
+        }
+    }
+    std::cout << WarningMsg("Transaction not found!") << std::endl;
 }
 
 void listTransfers(bool incoming, bool outgoing, CryptoNote::WalletGreen &wallet, CryptoNote::INode &node) {

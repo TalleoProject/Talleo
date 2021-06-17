@@ -98,6 +98,8 @@ void selectAddress(CryptoNote::WalletGreen &wallet);
 
 void selectAddress(CryptoNote::WalletGreen &wallet, std::vector<std::string> args);
 
+void listTransfer(std::vector<std::string> args, CryptoNote::WalletGreen &wallet, CryptoNote::INode &node);
+
 void listTransfers(bool incoming, bool outgoing, CryptoNote::WalletGreen &wallet, CryptoNote::INode &node);
 
 void estimateFusion(std::shared_ptr<WalletInfo> &walletInfo);
