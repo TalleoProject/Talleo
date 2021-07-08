@@ -102,6 +102,8 @@ void listTransfer(std::vector<std::string> args, CryptoNote::WalletGreen &wallet
 
 void listTransfers(bool incoming, bool outgoing, CryptoNote::WalletGreen &wallet, CryptoNote::INode &node);
 
+void countTransfers(bool incoming, bool outgoing, CryptoNote::WalletGreen &wallet, CryptoNote::INode &node);
+
 void estimateFusion(std::shared_ptr<WalletInfo> &walletInfo);
 
 void findNewTransactions(CryptoNote::INode &node, std::shared_ptr<WalletInfo> &walletInfo);

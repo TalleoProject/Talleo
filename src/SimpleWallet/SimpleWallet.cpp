@@ -760,6 +760,8 @@ void inputLoop(std::shared_ptr<WalletInfo> &walletInfo, CryptoNote::INode &node)
                 listTransfer(words, walletInfo->wallet, node);
             } else if (command == "list_transfers") {
                 listTransfers(true, true, walletInfo->wallet, node);
+            } else if (command == "count_transfers") {
+                countTransfers(true, true, walletInfo->wallet, node);
             } else if (command == "transfer") {
                 transfer(walletInfo);
             } else if (words[0] == "transfer") {
@@ -804,6 +806,7 @@ void help(bool viewWallet) {
                   << SuccessMsg("list_outputs", 25) << "Show unspent outputs" << std::endl
                   << SuccessMsg("list_transfer", 25) << "Show transfer" << std::endl
                   << SuccessMsg("list_transfers", 25) << "Show all transfers" << std::endl
+                  << SuccessMsg("count_transfers", 25) << "Show number of transfers" << std::endl
                   << SuccessMsg("quick_optimize", 25) << "Quickly optimize your wallet to send large amounts" << std::endl
                   << SuccessMsg("full_optimize", 25) << "Fully optimize your wallet to send large amounts" << std::endl
                   << SuccessMsg("outgoing_transfers", 25) << "Show outgoing transfers" << std::endl;
@@ -1279,6 +1282,33 @@ void listTransfers(bool incoming, bool outgoing, CryptoNote::WalletGreen &wallet
         std::cout << InformationMsg("Total spent: ") << WarningMsg(formatAmount(totalSpent)) << std::endl;
     }
 }
+
+void countTransfers(bool incoming, bool outgoing, CryptoNote::WalletGreen &wallet, CryptoNote::INode &node) {
+    auto transactions = filterTransactions(wallet);
+    size_t numTransactions = transactions.size();
+    uint64_t totalIncoming = 0;
+    uint64_t totalOutgoing = 0;
+
+    for (size_t i = 0; i < numTransactions; i++) {
+        CryptoNote::WalletTransaction t = transactions[i];
+        int64_t amount = filterAmounts(t, wallet);
+
+        if (amount < 0 && outgoing) {
+            totalOutgoing++;
+        } else if (amount > 0 && incoming) {
+            totalIncoming++;
+        }
+    }
+
+    if (incoming) {
+        std::cout << InformationMsg("Incoming transfers: ") << SuccessMsg(std::to_string(totalIncoming)) << std::endl;
+    }
+
+    if (outgoing) {
+        std::cout << InformationMsg("Outgoing transfers: ") << WarningMsg(std::to_string(totalOutgoing)) << std::endl;
+    }
+}
+
 
 void checkForNewTransactions(std::shared_ptr<WalletInfo> &walletInfo) {
     hidecursor();
