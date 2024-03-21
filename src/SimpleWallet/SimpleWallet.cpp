@@ -3,7 +3,7 @@ Copyright (C) 2018, The TurtleCoin developers
 Copyright (C) 2018, The PinkstarcoinV2 developers
 Copyright (C) 2018, The Bittorium developers
 Copyright (c) 2018, The Karbo developers
-Copyright (C) 2019-2023, The Talleo developers
+Copyright (C) 2019-2024, The Talleo developers
 
 
 This program is free software: you can redistribute it and/or modify
@@ -32,6 +32,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/algorithm/string.hpp>
 
 #include "Common/JsonValue.h"
+#include "Common/StringTools.h"
 #include "Rpc/HttpClient.h"
 #include "Cursor.h"
 
@@ -723,6 +724,8 @@ void inputLoop(System::Dispatcher& dispatcher, std::shared_ptr<WalletInfo> &wall
             help(walletInfo->viewWallet);
         } else if (command == "balance") {
             balance(node, walletInfo->wallet, walletInfo->viewWallet);
+        } else if (command == "balances") {
+            balances(node, walletInfo->wallet, walletInfo->viewWallet);
         } else if (command == "address") {
             std::cout << SuccessMsg(walletInfo->wallet.getAddress(subWallet)) << std::endl;
         } else if (words[0] == "address") {
@@ -831,6 +834,7 @@ void help(bool viewWallet) {
               << SuccessMsg("help", 25) << "List this help message" << std::endl
               << SuccessMsg("address", 25) << "Displays your payment address" << std::endl
               << SuccessMsg("balance", 25) << "Display how much " << coinTicker << " you have" << std::endl
+              << SuccessMsg("balances", 25) << "Display how much " << coinTicker << " is in all subwallets" << std::endl
               << SuccessMsg("bc_height", 25) << "Show the blockchain height" << std::endl
               << SuccessMsg("change_password", 25) << "Change password of current wallet file" << std::endl
               << SuccessMsg("export_keys", 25) << "Export your private keys" << std::endl;
@@ -874,6 +878,81 @@ void balance(CryptoNote::INode &node, CryptoNote::WalletGreen &wallet, bool view
               << std::right << std::setw(30) << "Locked (unconfirmed) balance: " << std::right << std::setw(totalLen) << WarningMsg(formatAmount(unconfirmedBalance)) << std::endl
               << std::string(30+totalLen, '-') << std::endl
               << std::right << std::setw(30) << "Total balance: " << std::right << std::setw(totalLen) << InformationMsg(formatAmount(totalBalance)) << std::endl;
+
+    if (viewWallet) {
+        std::cout << std::endl
+                  << InformationMsg("Please note that view only wallets can only track incoming transactions, and so your wallet balance may appear inflated.") << std::endl;
+    }
+
+    if (localHeight < remoteHeight) {
+        std::cout << std::endl
+                  << InformationMsg("Your daemon is not fully synced with the network!") << std::endl
+                  << "Your balance may be incorrect until you are fully synced!" << std::endl;
+    } else if (walletHeight + 1000 < remoteHeight) { /* Small buffer because wallet height doesn't update instantly like node height does */
+        std::cout << std::endl
+                  << InformationMsg("The blockchain is still being scanned for your transactions.") << std::endl
+                  << "Balances might be incorrect whilst this is ongoing." << std::endl;
+    }
+}
+
+void balances(CryptoNote::INode &node, CryptoNote::WalletGreen &wallet, bool viewWallet) {
+    size_t numWallets = wallet.getAddressCount();
+    size_t addressLen = wallet.getAddress(0).length();
+    std::vector<std::string> addresses;
+    std::vector<uint64_t> unconfirmedBalances;
+    std::vector<uint64_t> confirmedBalances;
+    std::vector<uint64_t> totalBalances;
+    uint64_t unconfirmedBalancesTotal = 0;
+    uint64_t confirmedBalancesTotal = 0;
+    uint64_t totalBalancesTotal = 0;
+    size_t unconfirmedBalancesLen, confirmedBalancesLen, totalBalancesLen;
+    for (size_t i = 0; i < numWallets; i++) {
+        std::string address = wallet.getAddress(i);
+        uint64_t unconfirmedBalance = wallet.getPendingBalance(address);
+        uint64_t confirmedBalance = wallet.getActualBalance(address);
+        uint64_t totalBalance = unconfirmedBalance + confirmedBalance;
+
+        addresses.push_back(address);
+        unconfirmedBalances.push_back(unconfirmedBalance);
+        confirmedBalances.push_back(confirmedBalance);
+        totalBalances.push_back(totalBalance);
+
+        unconfirmedBalancesTotal += unconfirmedBalance;
+        confirmedBalancesTotal += confirmedBalance;
+        totalBalancesTotal += totalBalance;
+    }
+
+    uint32_t localHeight = node.getLastLocalBlockHeight();
+    uint32_t remoteHeight = node.getLastKnownBlockHeight();
+    uint32_t walletHeight = wallet.getBlockCount();
+
+    unconfirmedBalancesLen = std::max(UINT64_C(6), formatAmount(unconfirmedBalancesTotal).length());
+    confirmedBalancesLen = std::max(UINT64_C(9), formatAmount(confirmedBalancesTotal).length());
+    totalBalancesLen = std::max(UINT64_C(5), formatAmount(totalBalancesTotal).length());
+
+    std::cout << std::left << std::setw(addressLen) << "Address"
+              << std::right << std::setw(confirmedBalancesLen + 1) << "Available"
+              << std::right << std::setw(unconfirmedBalancesLen + 1) << "Locked"
+              << std::right << std::setw(totalBalancesLen + 1) << "Total"
+              << std::endl;
+    std::cout << Common::repeatChar(addressLen + confirmedBalancesLen + unconfirmedBalancesLen + totalBalancesLen + 3, '=') << std::endl;
+
+    for (size_t i = 0; i < numWallets; i++) {
+        std::cout << addresses[i]
+                  << std::right << std::setw(confirmedBalancesLen + 1) << SuccessMsg(formatAmount(confirmedBalances[i]))
+                  << std::right << std::setw(unconfirmedBalancesLen + 1) << WarningMsg(formatAmount(unconfirmedBalances[i]))
+                  << std::right << std::setw(totalBalancesLen + 1) << InformationMsg(formatAmount(totalBalances[i]))
+                  << std::endl;
+    }
+
+    if (numWallets > 1) {
+            std::cout << Common::repeatChar(addressLen + confirmedBalancesLen + unconfirmedBalancesLen + totalBalancesLen + 3, '-') << std::endl;
+            std::cout << std::setw(addressLen) << "Total:"
+                      << std::right << std::setw(confirmedBalancesLen + 1) << SuccessMsg(formatAmount(confirmedBalancesTotal))
+                      << std::right << std::setw(unconfirmedBalancesLen + 1) << WarningMsg(formatAmount(unconfirmedBalancesTotal))
+                      << std::right << std::setw(totalBalancesLen + 1) << InformationMsg(formatAmount(totalBalancesTotal))
+                      << std::endl;
+    }
 
     if (viewWallet) {
         std::cout << std::endl
