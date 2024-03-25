@@ -814,6 +814,8 @@ void inputLoop(System::Dispatcher& dispatcher, std::shared_ptr<WalletInfo> &wall
                 quickOptimize(walletInfo->wallet);
             } else if (command == "full_optimize") {
                 fullOptimize(walletInfo->wallet);
+            } else if (command == "consolidate") {
+                consolidate(walletInfo->wallet);
             } else {
                 std::cout << "Unknown command: " << WarningMsg(command) << ", use " << SuggestionMsg("help") << " command to list all possible commands." << std::endl;
             }
@@ -851,6 +853,7 @@ void help(bool viewWallet) {
                   << SuccessMsg("count_transfers", 25) << "Show number of transfers" << std::endl
                   << SuccessMsg("quick_optimize", 25) << "Quickly optimize your wallet to send large amounts" << std::endl
                   << SuccessMsg("full_optimize", 25) << "Fully optimize your wallet to send large amounts" << std::endl
+                  << SuccessMsg("consolidate", 25) << "Optimize all subwallets and transfer to current subwallet" << std::endl
                   << SuccessMsg("outgoing_transfers", 25) << "Show outgoing transfers" << std::endl
                   << SuccessMsg("repair", 25) << "Repair wallet integrity" << std::endl;
                   ;

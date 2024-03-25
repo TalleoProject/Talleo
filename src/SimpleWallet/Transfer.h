@@ -2,7 +2,7 @@
 Copyright (C) 2018, The TurtleCoin developers
 Copyright (C) 2018, The PinkstarcoinV2 developers
 Copyright (C) 2018, The Bittorium developers
-Copyright (C) 2021-2022, The Talleo developers
+Copyright (C) 2021-2024, The Talleo developers
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -76,10 +76,15 @@ void quickOptimize(CryptoNote::WalletGreen &wallet);
 
 void fullOptimize(CryptoNote::WalletGreen &wallet);
 
+void consolidate(CryptoNote::WalletGreen &wallet);
+
 bool confirmTransaction(CryptoNote::TransactionParameters t,
                         std::shared_ptr<WalletInfo> walletInfo);
 
 bool optimize(CryptoNote::WalletGreen &wallet, const std::vector<std::string> &addresses, uint64_t threshold);
+
+bool optimize(CryptoNote::WalletGreen &wallet, const std::vector<std::string> &sourceAddresses,
+              const std::string &destinationAddress, uint64_t threshold);
 
 bool parseAmount(std::string amountString);
 
@@ -99,7 +104,7 @@ Maybe<uint64_t> getTransferAmount();
 
 Maybe<uint16_t> getMixin();
 
-size_t makeFusionTransaction(CryptoNote::WalletGreen &wallet, const std::vector<std::string> &addresses,
-                             uint64_t threshold);
+size_t makeFusionTransaction(CryptoNote::WalletGreen &wallet, const std::vector<std::string> &sourceAddresses,
+                             const std::string &destinationAddress, uint64_t threshold);
 
 std::string resolveAddress(System::Dispatcher& dispatcher, const std::string& email);

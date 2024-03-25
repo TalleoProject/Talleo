@@ -3,7 +3,7 @@ Copyright (C) 2018, The TurtleCoin developers
 Copyright (C) 2018, The PinkstarcoinV2 developers
 Copyright (C) 2018, The Bittorium developers
 Copyright (C) 2018, The Karbo developers
-Copyright (C) 2019-2022, The Talleo developers
+Copyright (C) 2019-2024, The Talleo developers
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -222,14 +222,14 @@ void splitTx(CryptoNote::WalletGreen &wallet, CryptoNote::TransactionParameters 
     }
 }
 
-size_t makeFusionTransaction(CryptoNote::WalletGreen &wallet, const std::vector<std::string> &addresses, uint64_t threshold) {
+size_t makeFusionTransaction(CryptoNote::WalletGreen &wallet, const std::vector<std::string> &sourceAddresses, const std::string &destinationAddress, uint64_t threshold) {
     uint64_t bestThreshold = threshold;
     size_t optimizable = 0;
 
     /* Find the best threshold by starting at threshold and decreasing by half till we get to the minimum amount, storing the threshold that
        gave us the most amount of optimizable amounts */
     while (threshold > CryptoNote::parameters::MINIMUM_FEE) {
-        CryptoNote::IFusionManager::EstimateResult r = wallet.estimate(threshold, addresses);
+        CryptoNote::IFusionManager::EstimateResult r = wallet.estimate(threshold, sourceAddresses);
 
         if (r.fusionReadyCount > optimizable) {
             optimizable = r.fusionReadyCount;
@@ -241,7 +241,7 @@ size_t makeFusionTransaction(CryptoNote::WalletGreen &wallet, const std::vector<
 
     /* Can throw if it can't create - lol what are error codes - just catch it and assume we can't fusion anymore */
     try {
-        return wallet.createFusionTransaction(bestThreshold, CryptoNote::parameters::DEFAULT_MIXIN, addresses, addresses[0]);
+        return wallet.createFusionTransaction(bestThreshold, CryptoNote::parameters::DEFAULT_MIXIN, sourceAddresses, destinationAddress);
     } catch (const std::runtime_error&) {
         return CryptoNote::WALLET_INVALID_TRANSACTION_ID;
     }
@@ -260,7 +260,7 @@ void checkForUnoptimizedOutputs(std::shared_ptr<WalletInfo> &walletInfo) {
     size_t outputs = getFusionReadyCount(walletInfo->wallet, addresses);
     if (outputs > 0) {
         uint64_t threshold = (optimizeThreshold == 0) ? getTotalActualBalance(walletInfo->wallet, addresses) : optimizeThreshold;
-        makeFusionTransaction(walletInfo->wallet, addresses, threshold);
+        makeFusionTransaction(walletInfo->wallet, addresses, sourceAddress, threshold);
     }
 }
 
@@ -322,16 +322,51 @@ void fullOptimize(CryptoNote::WalletGreen &wallet) {
     std::cout << SuccessMsg("Full optimization completed!") << std::endl;
 }
 
+void consolidate(CryptoNote::WalletGreen &wallet) {
+    size_t numWallets = wallet.getAddressCount();
+    std::vector<std::string> sources;
+    std::string destination = wallet.getAddress(subWallet);
+
+    for (size_t i = 0; i < numWallets; i++) {
+        std::string source = wallet.getAddress(i);
+        if (source == destination || wallet.getActualBalance(source) > 0) {
+            sources.push_back(source);
+        }
+    }
+    if (getFusionReadyCount(wallet, sources) == 0) {
+        std::cout << SuccessMsg("Subwallets fully consolidated!") << std::endl;
+        return;
+    }
+
+    uint64_t threshold = (optimizeThreshold == 0) ? getTotalActualBalance(wallet, sources) : optimizeThreshold;
+
+    for (int i = 1;;i++) {
+        std::cout << InformationMsg("Running optimization round ") << SuccessMsg(std::to_string(i)) << InformationMsg("...") << std::endl;
+
+        /* Optimize as many times as possible until optimization is no longer possible. */
+        if (!optimize(wallet, sources, destination, threshold)) {
+            break;
+        }
+    }
+
+    std::cout << SuccessMsg("Consolidation completed!") << std::endl;
+}
+
 bool optimize(CryptoNote::WalletGreen &wallet, const std::vector<std::string> &addresses, uint64_t threshold) {
+    std::string destination = wallet.getAddress(subWallet);
+    return optimize(wallet, addresses, destination, threshold);
+}
+
+bool optimize(CryptoNote::WalletGreen &wallet, const std::vector<std::string> &sourceAddresses, const std::string &destinationAddress, uint64_t threshold) {
     std::vector<Crypto::Hash> fusionTransactionHashes;
 
     hidecursor();
 
     int retries = 20;
 
-    while (getFusionReadyCount(wallet, addresses) > 0) {
+    while (getFusionReadyCount(wallet, sourceAddresses) > 0) {
         /* Create as many fusion transactions until we can't send anymore, either because balance is locked too much or we can no longer optimize anymore transactions */
-        size_t tmpFusionTxID = makeFusionTransaction(wallet, addresses, threshold);
+        size_t tmpFusionTxID = makeFusionTransaction(wallet, sourceAddresses, destinationAddress, threshold);
 
         if (tmpFusionTxID == CryptoNote::WALLET_INVALID_TRANSACTION_ID) {
             if (fusionTransactionHashes.empty() && (retries--)) { // Node rejected the first fusion transaction
