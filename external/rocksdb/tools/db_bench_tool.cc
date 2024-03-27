@@ -1467,7 +1467,7 @@ class CombinedStats;
 class Stats {
  private:
   int id_;
-  uint64_t start_;
+  uint64_t start_ = 0;
   uint64_t finish_;
   double seconds_;
   uint64_t done_;
