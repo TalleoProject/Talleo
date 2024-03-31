@@ -542,6 +542,9 @@ void fusionTX(CryptoNote::WalletGreen &wallet, CryptoNote::TransactionParameters
 
 void transfer(System::Dispatcher& dispatcher, std::shared_ptr<WalletInfo> walletInfo, std::vector<std::string> args) {
     uint16_t mixin;
+    std::string sourceAddress = walletInfo->wallet.getAddress(subWallet);
+    std::vector<std::string> sourceAddresses;
+    sourceAddresses.push_back(sourceAddress);
     std::string address;
     uint64_t amount;
     uint64_t fee = CryptoNote::parameters::MINIMUM_FEE;
@@ -607,7 +610,7 @@ void transfer(System::Dispatcher& dispatcher, std::shared_ptr<WalletInfo> wallet
         }
     }
 
-    doTransfer(dispatcher, mixin, address, amount, fee, extra, walletInfo);
+    doTransfer(dispatcher, mixin, sourceAddresses, address, amount, fee, extra, walletInfo);
 }
 
 void transfer(System::Dispatcher& dispatcher, std::shared_ptr<WalletInfo> walletInfo) {
@@ -616,6 +619,8 @@ void transfer(System::Dispatcher& dispatcher, std::shared_ptr<WalletInfo> wallet
 
     std::string sourceAddress = walletInfo->wallet.getAddress(subWallet);
     uint64_t balance = walletInfo->wallet.getActualBalance(sourceAddress);
+    std::vector<std::string> sourceAddresses;
+    sourceAddresses.push_back(sourceAddress);
 
     auto maybeAddress = getDestinationAddress(dispatcher);
 
@@ -635,6 +640,25 @@ void transfer(System::Dispatcher& dispatcher, std::shared_ptr<WalletInfo> wallet
 
     uint64_t amount = maybeAmount.x;
 
+    if (balance < amount && getTotalActualBalance(walletInfo->wallet) > amount) {
+        std::cout << WarningMsg("Current subwallet doesn't have enough funds to cover this transaction,") << std::endl;
+        if (confirm("do you want to use other subwallets?")) {
+            size_t numWallets = walletInfo->wallet.getAddressCount();
+            for (size_t i = 0; i < numWallets; i++) {
+                std::string subaddress = walletInfo->wallet.getAddress(i);
+                uint64_t subbalance = walletInfo->wallet.getActualBalance(subaddress);
+                if (subaddress != sourceAddress && subbalance > 0) {
+                    balance += subbalance;
+                    sourceAddresses.push_back(subaddress);
+                    // We need at least amount + 0.01 TLO
+                    if (balance > amount) {
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
     if (balance < amount) {
         size_t totalLen = formatAmount(amount).length(); // Funds needed is always the widest string
 
@@ -652,6 +676,27 @@ void transfer(System::Dispatcher& dispatcher, std::shared_ptr<WalletInfo> wallet
     }
 
     uint64_t fee = maybeFee.x;
+
+    if (balance < amount + fee && sourceAddresses.size() > 1 && getTotalActualBalance(walletInfo->wallet) >= amount + fee) {
+        size_t numWallets = walletInfo->wallet.getAddressCount();
+        uint64_t needed = amount + fee;
+        // We need to consider remote node fee already here as it could be more than remaining balance of already selected subwallets
+        if (!remote_fee_address.empty()) {
+            // Remote node fee is between 0.01 and 1.00 TLO depending on transfer amount
+            needed += std::min(UINT64_C(1), std::max(static_cast<uint64_t>(amount * 0.000025), UINT64_C(100)));
+        }
+        for (size_t i = 0; i < numWallets; i++) {
+            std::string subaddress = walletInfo->wallet.getAddress(i);
+            uint64_t subbalance = walletInfo->wallet.getActualBalance(subaddress);
+            if (std::find(sourceAddresses.begin(), sourceAddresses.end(), subaddress) == sourceAddresses.end() && subbalance > 0) {
+                balance += subbalance;
+                sourceAddresses.push_back(subaddress);
+                if (balance >= needed) {
+                    break;
+                }
+            }
+        }
+    }
 
     if (balance < amount + fee) {
         size_t totalLen = formatAmount(amount + fee).length(); // Funds needed is always the widest string
@@ -680,12 +725,12 @@ void transfer(System::Dispatcher& dispatcher, std::shared_ptr<WalletInfo> wallet
 
     std::string extra = maybeExtra.x;
 
-    doTransfer(dispatcher, mixin, address, amount, fee, extra, walletInfo);
+    doTransfer(dispatcher, mixin, sourceAddresses, address, amount, fee, extra, walletInfo);
 }
 
-void doTransfer(System::Dispatcher& dispatcher, uint16_t mixin, std::string address, uint64_t amount, uint64_t fee, std::string extra, std::shared_ptr<WalletInfo> walletInfo) {
-    std::string sourceAddress = walletInfo->wallet.getAddress(subWallet);
-    uint64_t balance = walletInfo->wallet.getActualBalance(sourceAddress);
+void doTransfer(System::Dispatcher& dispatcher, uint16_t mixin, const std::vector<std::string> &sourceAddresses, std::string address, uint64_t amount, uint64_t fee, const std::string &extra, std::shared_ptr<WalletInfo> walletInfo) {
+    std::string changeAddress = walletInfo->wallet.getAddress(subWallet);
+    uint64_t balance = getTotalActualBalance(walletInfo->wallet, sourceAddresses);
     uint64_t remote_node_fee = 0;
     if (!remote_fee_address.empty()) {
         // Remote node fee is between 0.01 and 1.00 TLO depending on transfer amount
@@ -726,12 +771,12 @@ void doTransfer(System::Dispatcher& dispatcher, uint16_t mixin, std::string addr
     }
 
     CryptoNote::TransactionParameters p;
-    p.sourceAddresses.push_back(sourceAddress);
+    p.sourceAddresses = sourceAddresses;
     p.destinations = transfers;
     p.fee = fee;
     p.mixIn = mixin;
     p.extra = extra;
-    p.changeDestination = sourceAddress;
+    p.changeDestination = changeAddress;
 
     if (!confirmTransaction(p, walletInfo)) {
         std::cout << WarningMsg("Cancelling transaction.") << std::endl;

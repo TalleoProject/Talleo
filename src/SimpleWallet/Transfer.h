@@ -58,8 +58,8 @@ void transfer(System::Dispatcher& dispatcher, std::shared_ptr<WalletInfo> wallet
 void transfer(System::Dispatcher& dispatcher, std::shared_ptr<WalletInfo> walletInfo,
               std::vector<std::string> args);
 
-void doTransfer(System::Dispatcher& dispatcher, uint16_t mixin, std::string address, uint64_t amount,
-                uint64_t fee, std::string extra,
+void doTransfer(System::Dispatcher& dispatcher, uint16_t mixin, const std::vector<std::string> &sourceAddresses,
+                std::string address, uint64_t amount, uint64_t fee, const std::string &extra,
                 std::shared_ptr<WalletInfo> walletInfo);
 
 void fusionTX(CryptoNote::WalletGreen &wallet,
