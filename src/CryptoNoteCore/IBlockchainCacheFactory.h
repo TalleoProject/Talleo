@@ -1,4 +1,5 @@
 // Copyright (c) 2012-2017, The CryptoNote developers, The Bytecoin developers
+// Copyright (c) 2024, The Talleo developers
 //
 // This file is part of Bytecoin.
 //
@@ -17,6 +18,7 @@
 
 #pragma once
 
+#include <cstdint>
 #include <memory>
 
 namespace CryptoNote {

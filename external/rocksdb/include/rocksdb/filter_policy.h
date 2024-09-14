@@ -22,6 +22,7 @@
 
 #include <memory>
 #include <stdexcept>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string>
 #include <vector>

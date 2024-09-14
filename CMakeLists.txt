@@ -1,8 +1,10 @@
 cmake_minimum_required(VERSION 3.7)
 
 cmake_policy(SET CMP0048 NEW)
+if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.30")
+  cmake_policy(SET CMP0167 OLD)
+endif()
 
-set(VERSION "0.1")
 # $Format:Packaged from commit %H%nset(COMMIT %h)%nset(REFS "%d")$
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
