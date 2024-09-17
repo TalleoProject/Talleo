@@ -17,7 +17,9 @@
 // in fact, we could use that one
 #define ROCKSDB_PRIszt "zu"
 
+#if !defined(OS_HAIKU)
 #define __declspec(S)
+#endif
 
 #define ROCKSDB_NOEXCEPT noexcept
 

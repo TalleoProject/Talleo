@@ -1,4 +1,5 @@
 // Copyright (c) 2012-2017, The CryptoNote developers, The Bytecoin developers
+// Copyright (c) 2024, The Talleo developers
 //
 // This file is part of Bytecoin.
 //
@@ -22,6 +23,10 @@
 #include <stdint.h>
 #include <string.h>
 #include <sys/param.h>
+
+#if defined(__HAIKU__)
+#include <ByteOrder.h>
+#endif
 
 #if defined(_MSC_VER)
 #include <stdlib.h>

@@ -642,11 +642,15 @@ Status PosixMmapFile::Close() {
 Status PosixMmapFile::Flush() { return Status::OK(); }
 
 Status PosixMmapFile::Sync() {
+#if defined(OS_HAIKU)
+  return Fsync();
+#else
   if (fdatasync(fd_) < 0) {
     return IOError("While fdatasync mmapped file", filename_, errno);
   }
 
   return Msync();
+#endif
 }
 
 /**
@@ -846,10 +850,14 @@ Status PosixWritableFile::Close() {
 Status PosixWritableFile::Flush() { return Status::OK(); }
 
 Status PosixWritableFile::Sync() {
+#if defined(OS_HAIKU)
+  return Fsync();
+#else
   if (fdatasync(fd_) < 0) {
     return IOError("While fdatasync", filename_, errno);
   }
   return Status::OK();
+#endif
 }
 
 Status PosixWritableFile::Fsync() {
@@ -1008,10 +1016,14 @@ Status PosixRandomRWFile::Read(uint64_t offset, size_t n, Slice* result,
 Status PosixRandomRWFile::Flush() { return Status::OK(); }
 
 Status PosixRandomRWFile::Sync() {
+#if defined(OS_HAIKU)
+  return Fsync();
+#else
   if (fdatasync(fd_) < 0) {
     return IOError("While fdatasync random read/write file", filename_, errno);
   }
   return Status::OK();
+#endif
 }
 
 Status PosixRandomRWFile::Fsync() {

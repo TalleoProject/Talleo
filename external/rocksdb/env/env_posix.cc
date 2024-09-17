@@ -605,9 +605,14 @@ class PosixEnv : public Env {
       return IOError("stat file", second, errno);
     }
 
+#ifdef OS_HAIKU
+    if (statbuf[0].st_dev != statbuf[1].st_dev ||
+        statbuf[0].st_ino != statbuf[1].st_ino) {
+#else
     if (major(statbuf[0].st_dev) != major(statbuf[1].st_dev) ||
         minor(statbuf[0].st_dev) != minor(statbuf[1].st_dev) ||
         statbuf[0].st_ino != statbuf[1].st_ino) {
+#endif
       *res = false;
     } else {
       *res = true;

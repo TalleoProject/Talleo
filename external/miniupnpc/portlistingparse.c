@@ -9,6 +9,11 @@
 #include "portlistingparse.h"
 #include "minixml.h"
 
+#if defined(__HAIKU__)
+/* rename our private function because Haiku already defines a atoui() function */
+#define atoui atoui2
+#endif
+
 /* list of the elements */
 static const struct {
 	const portMappingElt code;

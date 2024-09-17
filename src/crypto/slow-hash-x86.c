@@ -2,6 +2,7 @@
 // Copyright (c) 2014-2018, The Monero Project
 // Copyright (c) 2014-2018, The Aeon Project
 // Copyright (c) 2018-2019, The TurtleCoin Developers
+// Copyright (c) 2024, The Talleo developers
 //
 // Please see the included LICENSE file for more information.
 
@@ -424,7 +425,7 @@ void slow_hash_allocate_state(uint32_t page_size)
     SetLockPagesPrivilege(GetCurrentProcess(), TRUE);
     hp_state = (uint8_t *)VirtualAlloc(hp_state, page_size, MEM_LARGE_PAGES | MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
 #else
-#if defined(__APPLE__) || defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__DragonFly__) || defined(__NetBSD__)
+#if defined(__APPLE__) || defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__DragonFly__) || defined(__NetBSD__) || defined(__HAIKU__)
     hp_state = mmap(0, page_size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANON, 0, 0);
 #else
     hp_state = mmap(0, page_size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB, 0, 0);

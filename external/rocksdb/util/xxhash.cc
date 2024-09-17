@@ -114,7 +114,7 @@ namespace rocksdb {
 
 #if defined(__GNUC__)  && !defined(XXH_USE_UNALIGNED_ACCESS)
 #  define _PACKED __attribute__ ((packed))
-#else
+#elif !defined(OS_HAIKU)
 #  define _PACKED
 #endif
 

@@ -48,6 +48,8 @@ elseif(ANDROID)
   target_link_libraries(TransfersTests dl)
   target_link_libraries(SystemTests dl)
   target_link_libraries(HashTests dl)
+elseif(HAIKU)
+  target_link_libraries(CryptoTests bsd)
 endif()
 
 target_link_libraries(TransfersTests IntegrationTestLibrary TestsCommon Wallet gtest_main InProcessNode NodeRpcProxy P2P Rpc Http BlockchainExplorer CryptoNoteCore Serialization System Logging Transfers Common Crypto upnpc-static ${Boost_LIBRARIES})
