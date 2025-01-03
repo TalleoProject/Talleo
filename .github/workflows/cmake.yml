@@ -106,6 +106,36 @@ jobs:
             cxx_compiler: clang++-15
             packages: build-essential python3-dev clang-15 git cmake libboost1.74-all-dev libgflags-dev libsnappy-dev zlib1g-dev libbz2-dev liblz4-dev libzstd-dev
 
+          - name: Ubuntu 24.04 GCC 13
+            os: ubuntu-24.04
+            c_compiler: gcc-13
+            cxx_compiler: g++-13
+            packages: build-essential python3-dev gcc-13 g++-13 git cmake libboost1.83-all-dev libgflags-dev libsnappy-dev zlib1g-dev libbz2-dev liblz4-dev libzstd-dev
+
+          - name: Ubuntu 24.04 GCC 14
+            os: ubuntu-24.04
+            c_compiler: gcc-14
+            cxx_compiler: g++-14
+            packages: build-essential python3-dev gcc-14 g++-14 git cmake libboost1.83-all-dev libgflags-dev libsnappy-dev zlib1g-dev libbz2-dev liblz4-dev libzstd-dev
+
+          - name: Ubuntu 24.04 Clang 16
+            os: ubuntu-24.04
+            c_compiler: clang-16
+            cxx_compiler: clang++-16
+            packages: build-essential python3-dev clang-16 git cmake libboost1.83-all-dev libgflags-dev libsnappy-dev zlib1g-dev libbz2-dev liblz4-dev libzstd-dev
+
+          - name: Ubuntu 24.04 Clang 17
+            os: ubuntu-24.04
+            c_compiler: clang-17
+            cxx_compiler: clang++-17
+            packages: build-essential python3-dev clang-17 git cmake libboost1.83-all-dev libgflags-dev libsnappy-dev zlib1g-dev libbz2-dev liblz4-dev libzstd-dev
+
+          - name: Ubuntu 24.04 Clang 18
+            os: ubuntu-24.04
+            c_compiler: clang-18
+            cxx_compiler: clang++-18
+            packages: build-essential python3-dev clang-18 git cmake libboost1.83-all-dev libgflags-dev libsnappy-dev zlib1g-dev libbz2-dev liblz4-dev libzstd-dev
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
