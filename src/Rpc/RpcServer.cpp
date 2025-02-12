@@ -1,7 +1,7 @@
 // Copyright (c) 2012-2017, The CryptoNote developers, The Bytecoin developers
 // Copyright (c) 2016-2018, The Karbowanec developers
 // Copyright (c) 2018, The Bittorium developers
-// Copyright (c) 2019-2022, The Talleo developers
+// Copyright (c) 2019-2025, The Talleo developers
 //
 // This file is part of Bytecoin.
 //
@@ -214,7 +214,7 @@ bool RpcServer::processJsonRpcRequest(const HttpRequest& request, HttpResponse& 
       { "f_pool_transaction_json", { makeMemberMethod(&RpcServer::f_on_pool_transaction_json), false } },
       { "f_on_transactions_pool_json", { makeMemberMethod(&RpcServer::f_on_transactions_pool_json), false } },
       { "getblockcount", { makeMemberMethod(&RpcServer::on_getblockcount), true } },
-      { "on_getblockhash", { makeMemberMethod(&RpcServer::on_getblockhash), false } },
+      { "getblockhash", { makeMemberMethod(&RpcServer::on_getblockhash), false } },
       { "getblocktemplate", { makeMemberMethod(&RpcServer::on_getblocktemplate), false } },
       { "getcurrencyid", { makeMemberMethod(&RpcServer::on_get_currency_id), true } },
       { "submitblock", { makeMemberMethod(&RpcServer::on_submitblock), false } },
