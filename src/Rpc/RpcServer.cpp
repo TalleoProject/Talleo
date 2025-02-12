@@ -769,7 +769,7 @@ bool RpcServer::on_get_collateral_hash(const COMMAND_RPC_GET_COLLATERAL_HASH::re
 
 
 bool RpcServer::on_get_peers(const COMMAND_RPC_GET_PEERS::request& req, COMMAND_RPC_GET_PEERS::response& res) {
-  std::list<PeerlistEntry> peers_white;
+  std::vector<PeerlistEntry> peers_white;
 
   m_p2p.getPeerlistManager().get_peerlist_white(peers_white);
 
@@ -783,7 +783,7 @@ bool RpcServer::on_get_peers(const COMMAND_RPC_GET_PEERS::request& req, COMMAND_
 }
 
 bool RpcServer::on_get_peersgray(const COMMAND_RPC_GET_PEERSGRAY::request& req, COMMAND_RPC_GET_PEERSGRAY::response& res) {
-  std::list<PeerlistEntry> peers_gray;
+  std::vector<PeerlistEntry> peers_gray;
 
   m_p2p.getPeerlistManager().get_peerlist_gray(peers_gray);
 

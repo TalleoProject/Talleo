@@ -417,10 +417,10 @@ bool P2pNode::fetchPeerList(ContextPtr connection) {
 
 namespace {
 
-std::list<PeerlistEntry> fixTimeDelta(const std::list<PeerlistEntry>& peerlist, time_t remoteTime) {
+std::vector<PeerlistEntry> fixTimeDelta(const std::vector<PeerlistEntry>& peerlist, time_t remoteTime) {
   //fix time delta
   int64_t delta = time(nullptr) - remoteTime;
-  std::list<PeerlistEntry> peerlistCopy(peerlist);
+  std::vector<PeerlistEntry> peerlistCopy(peerlist);
 
   for (PeerlistEntry& be : peerlistCopy) {
     if (be.last_seen > uint64_t(remoteTime)) {
@@ -434,7 +434,7 @@ std::list<PeerlistEntry> fixTimeDelta(const std::list<PeerlistEntry>& peerlist, 
 }
 }
 
-bool P2pNode::handleRemotePeerList(const std::list<PeerlistEntry>& peerlist, time_t remoteTime) {
+bool P2pNode::handleRemotePeerList(const std::vector<PeerlistEntry>& peerlist, time_t remoteTime) {
   return m_peerlist.merge_peerlist(fixTimeDelta(peerlist, remoteTime));
 }
 
@@ -442,8 +442,8 @@ const CORE_SYNC_DATA& P2pNode::getGenesisPayload() const {
   return m_genesisPayload;
 }
 
-std::list<PeerlistEntry> P2pNode::getLocalPeerList() const {
-  std::list<PeerlistEntry> peerlist;
+std::vector<PeerlistEntry> P2pNode::getLocalPeerList() const {
+  std::vector<PeerlistEntry> peerlist;
   m_peerlist.get_peerlist_head(peerlist);
   return peerlist;
 }

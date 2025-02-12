@@ -90,12 +90,12 @@ private:
 
   // IP2pNodeInternal
   virtual const CORE_SYNC_DATA& getGenesisPayload() const override;
-  virtual std::list<PeerlistEntry> getLocalPeerList() const override;
+  virtual std::vector<PeerlistEntry> getLocalPeerList() const override;
   virtual basic_node_data getNodeData() const override;
   virtual PeerIdType getPeerId() const override;
 
   virtual void handleNodeData(const basic_node_data& node, P2pContext& ctx) override;
-  virtual bool handleRemotePeerList(const std::list<PeerlistEntry>& peerlist, time_t local_time) override;
+  virtual bool handleRemotePeerList(const std::vector<PeerlistEntry>& peerlist, time_t local_time) override;
   virtual void tryPing(P2pContext& ctx) override;
 
   // spawns
