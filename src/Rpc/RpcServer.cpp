@@ -126,38 +126,38 @@ RpcServer::HandlerFunction jsonMethod(bool (RpcServer::*handler)(typename Comman
 
 std::unordered_map<std::string, RpcServer::RpcHandler<RpcServer::HandlerFunction>> RpcServer::s_handlers = {
   // binary handlers
-  { "/getblocks.bin", { binMethod<COMMAND_RPC_GET_BLOCKS_FAST>(&RpcServer::on_get_blocks), false } },
-  { "/queryblocks.bin", { binMethod<COMMAND_RPC_QUERY_BLOCKS>(&RpcServer::on_query_blocks), false } },
-  { "/queryblockslite.bin", { binMethod<COMMAND_RPC_QUERY_BLOCKS_LITE>(&RpcServer::on_query_blocks_lite), false } },
-  { "/get_o_indexes.bin", { binMethod<COMMAND_RPC_GET_TX_GLOBAL_OUTPUTS_INDEXES>(&RpcServer::on_get_indexes), false } },
-  { "/getrandom_outs.bin", { binMethod<COMMAND_RPC_GET_RANDOM_OUTPUTS_FOR_AMOUNTS>(&RpcServer::on_get_random_outs), false } },
-  { "/get_pool_changes.bin", { binMethod<COMMAND_RPC_GET_POOL_CHANGES>(&RpcServer::onGetPoolChanges), false } },
-  { "/get_pool_changes_lite.bin", { binMethod<COMMAND_RPC_GET_POOL_CHANGES_LITE>(&RpcServer::onGetPoolChangesLite), false } },
-  { "/get_block_details_by_height.bin", { binMethod<COMMAND_RPC_GET_BLOCK_DETAILS_BY_HEIGHT>(&RpcServer::onGetBlockDetailsByHeight), false } },
-  { "/get_blocks_details_by_hashes.bin", { binMethod<COMMAND_RPC_GET_BLOCKS_DETAILS_BY_HASHES>(&RpcServer::onGetBlocksDetailsByHashes), false } },
-  { "/get_blocks_hashes_by_timestamps.bin", { binMethod<COMMAND_RPC_GET_BLOCKS_HASHES_BY_TIMESTAMPS>(&RpcServer::onGetBlocksHashesByTimestamps), false } },
-  { "/get_transaction_details_by_hashes.bin", { binMethod<COMMAND_RPC_GET_TRANSACTION_DETAILS_BY_HASHES>(&RpcServer::onGetTransactionDetailsByHashes), false } },
-  { "/get_transaction_hashes_by_payment_id.bin", { binMethod<COMMAND_RPC_GET_TRANSACTION_HASHES_BY_PAYMENT_ID>(&RpcServer::onGetTransactionHashesByPaymentId), false } },
+  { "/getblocks.bin", { binMethod<COMMAND_RPC_GET_BLOCKS_FAST>(&RpcServer::onGetBlocksBin), false } },
+  { "/queryblocks.bin", { binMethod<COMMAND_RPC_QUERY_BLOCKS>(&RpcServer::onQueryBlocksBin), false } },
+  { "/queryblockslite.bin", { binMethod<COMMAND_RPC_QUERY_BLOCKS_LITE>(&RpcServer::onQueryBlocksLiteBin), false } },
+  { "/get_o_indexes.bin", { binMethod<COMMAND_RPC_GET_TX_GLOBAL_OUTPUTS_INDEXES>(&RpcServer::onGetIndexesBin), false } },
+  { "/getrandom_outs.bin", { binMethod<COMMAND_RPC_GET_RANDOM_OUTPUTS_FOR_AMOUNTS>(&RpcServer::onGetRandomOutsBin), false } },
+  { "/get_pool_changes.bin", { binMethod<COMMAND_RPC_GET_POOL_CHANGES>(&RpcServer::onGetPoolChangesBin), false } },
+  { "/get_pool_changes_lite.bin", { binMethod<COMMAND_RPC_GET_POOL_CHANGES_LITE>(&RpcServer::onGetPoolChangesLiteBin), false } },
+  { "/get_block_details_by_height.bin", { binMethod<COMMAND_RPC_GET_BLOCK_DETAILS_BY_HEIGHT>(&RpcServer::onGetBlockDetailsByHeightBin), false } },
+  { "/get_blocks_details_by_hashes.bin", { binMethod<COMMAND_RPC_GET_BLOCKS_DETAILS_BY_HASHES>(&RpcServer::onGetBlocksDetailsByHashesBin), false } },
+  { "/get_blocks_hashes_by_timestamps.bin", { binMethod<COMMAND_RPC_GET_BLOCKS_HASHES_BY_TIMESTAMPS>(&RpcServer::onGetBlocksHashesByTimestampsBin), false } },
+  { "/get_transaction_details_by_hashes.bin", { binMethod<COMMAND_RPC_GET_TRANSACTION_DETAILS_BY_HASHES>(&RpcServer::onGetTransactionDetailsByHashesBin), false } },
+  { "/get_transaction_hashes_by_payment_id.bin", { binMethod<COMMAND_RPC_GET_TRANSACTION_HASHES_BY_PAYMENT_ID>(&RpcServer::onGetTransactionHashesByPaymentIdBin), false } },
 
   // json handlers
-  { "/getinfo", { jsonMethod<COMMAND_RPC_GET_INFO>(&RpcServer::on_get_info), true } },
-  { "/getheight", { jsonMethod<COMMAND_RPC_GET_HEIGHT>(&RpcServer::on_get_height), true } },
-  { "/gettransactions", { jsonMethod<COMMAND_RPC_GET_TRANSACTIONS>(&RpcServer::on_get_transactions), false } },
-  { "/sendrawtransaction", { jsonMethod<COMMAND_RPC_SEND_RAW_TX>(&RpcServer::on_send_raw_tx), false } },
-  { "/feeaddress", { jsonMethod<COMMAND_RPC_GET_FEE_ADDRESS>(&RpcServer::on_get_fee_address), true } },
-  { "/collateralhash", { jsonMethod<COMMAND_RPC_GET_COLLATERAL_HASH>(&RpcServer::on_get_collateral_hash), true } },
-  { "/stop_daemon", { jsonMethod<COMMAND_RPC_STOP_DAEMON>(&RpcServer::on_stop_daemon), true } },
-  { "/getpeers", { jsonMethod<COMMAND_RPC_GET_PEERS>(&RpcServer::on_get_peers), true } },
-  { "/getpeersgray", { jsonMethod<COMMAND_RPC_GET_PEERSGRAY>(&RpcServer::on_get_peersgray), true } },
-  { "/get_generated_coins", { jsonMethod<COMMAND_RPC_GET_ISSUED_COINS>(&RpcServer::on_get_issued), true } },
-  { "/get_total_coins", { jsonMethod<COMMAND_RPC_GET_TOTAL_COINS>(&RpcServer::on_get_total), true } },
-  { "/get_amounts_for_account", { jsonMethod<COMMAND_RPC_GET_TRANSACTION_OUT_AMOUNTS_FOR_ACCOUNT>(&RpcServer::on_get_transaction_out_amounts_for_account), true } },
-  { "/get_block_hashes_by_payment_id", { jsonMethod<COMMAND_RPC_GET_BLOCK_HASHES_BY_PAYMENT_ID_JSON>(&RpcServer::on_get_block_hashes_by_payment_id), false } },
-  { "/get_block_hashes_by_transaction_hashes", { jsonMethod<COMMAND_RPC_GET_BLOCK_HASHES_BY_TRANSACTION_HASHES>(&RpcServer::on_get_block_hashes_by_transaction_hashes), false } },
-  { "/get_block_indexes_by_transaction_hashes", { jsonMethod<COMMAND_RPC_GET_BLOCK_INDEXES_BY_TRANSACTION_HASHES>(&RpcServer::on_get_block_indexes_by_transaction_hashes), false } },
-  { "/get_blocks_details_by_hashes", { jsonMethod<COMMAND_RPC_GET_BLOCKS_DETAILS_BY_HASHES_JSON>(&RpcServer::on_get_blocks_details_by_hashes), false } },
-  { "/get_transaction_details_by_hashes", { jsonMethod<COMMAND_RPC_GET_TRANSACTION_DETAILS_BY_HASHES_JSON>(&RpcServer::on_get_transaction_details_by_hashes), false } },
-  { "/get_transaction_hashes_by_payment_id", { jsonMethod<COMMAND_RPC_GET_TRANSACTION_HASHES_BY_PAYMENT_ID_JSON>(&RpcServer::on_get_transaction_hashes_by_payment_id), false } },
+  { "/getinfo", { jsonMethod<COMMAND_RPC_GET_INFO>(&RpcServer::onGetInfo), true } },
+  { "/getheight", { jsonMethod<COMMAND_RPC_GET_HEIGHT>(&RpcServer::onGetHeight), true } },
+  { "/gettransactions", { jsonMethod<COMMAND_RPC_GET_TRANSACTIONS>(&RpcServer::onGetTransactions), false } },
+  { "/sendrawtransaction", { jsonMethod<COMMAND_RPC_SEND_RAW_TX>(&RpcServer::onSendRawTx), false } },
+  { "/feeaddress", { jsonMethod<COMMAND_RPC_GET_FEE_ADDRESS>(&RpcServer::onGetFeeAddress), true } },
+  { "/collateralhash", { jsonMethod<COMMAND_RPC_GET_COLLATERAL_HASH>(&RpcServer::onGetCollateralHash), true } },
+  { "/stop_daemon", { jsonMethod<COMMAND_RPC_STOP_DAEMON>(&RpcServer::onStopDaemon), true } },
+  { "/getpeers", { jsonMethod<COMMAND_RPC_GET_PEERS>(&RpcServer::onGetPeers), true } },
+  { "/getpeersgray", { jsonMethod<COMMAND_RPC_GET_PEERSGRAY>(&RpcServer::onGetPeersGray), true } },
+  { "/get_generated_coins", { jsonMethod<COMMAND_RPC_GET_ISSUED_COINS>(&RpcServer::onGetIssued), true } },
+  { "/get_total_coins", { jsonMethod<COMMAND_RPC_GET_TOTAL_COINS>(&RpcServer::onGetTotal), true } },
+  { "/get_amounts_for_account", { jsonMethod<COMMAND_RPC_GET_TRANSACTION_OUT_AMOUNTS_FOR_ACCOUNT>(&RpcServer::onGetTransactionOutAmountsForAccount), true } },
+  { "/get_block_hashes_by_payment_id", { jsonMethod<COMMAND_RPC_GET_BLOCK_HASHES_BY_PAYMENT_ID_JSON>(&RpcServer::onGetBlockHashesByPaymentId), false } },
+  { "/get_block_hashes_by_transaction_hashes", { jsonMethod<COMMAND_RPC_GET_BLOCK_HASHES_BY_TRANSACTION_HASHES>(&RpcServer::onGetBlockHashesByTransactionHashes), false } },
+  { "/get_block_indexes_by_transaction_hashes", { jsonMethod<COMMAND_RPC_GET_BLOCK_INDEXES_BY_TRANSACTION_HASHES>(&RpcServer::onGetBlockIndexesByTransactionHashes), false } },
+  { "/get_blocks_details_by_hashes", { jsonMethod<COMMAND_RPC_GET_BLOCKS_DETAILS_BY_HASHES_JSON>(&RpcServer::onGetBlocksDetailsByHashes), false } },
+  { "/get_transaction_details_by_hashes", { jsonMethod<COMMAND_RPC_GET_TRANSACTION_DETAILS_BY_HASHES_JSON>(&RpcServer::onGetTransactionDetailsByHashes), false } },
+  { "/get_transaction_hashes_by_payment_id", { jsonMethod<COMMAND_RPC_GET_TRANSACTION_HASHES_BY_PAYMENT_ID_JSON>(&RpcServer::onGetTransactionHashesByPaymentId), false } },
 
   // json rpc
   { "/json_rpc", { std::bind(&RpcServer::processJsonRpcRequest, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3), true } }
@@ -213,15 +213,15 @@ bool RpcServer::processJsonRpcRequest(const HttpRequest& request, HttpResponse& 
       { "f_transaction_json", { makeMemberMethod(&RpcServer::f_on_transaction_json), false } },
       { "f_pool_transaction_json", { makeMemberMethod(&RpcServer::f_on_pool_transaction_json), false } },
       { "f_on_transactions_pool_json", { makeMemberMethod(&RpcServer::f_on_transactions_pool_json), false } },
-      { "getblockcount", { makeMemberMethod(&RpcServer::on_getblockcount), true } },
-      { "getblockhash", { makeMemberMethod(&RpcServer::on_getblockhash), false } },
-      { "getblocktemplate", { makeMemberMethod(&RpcServer::on_getblocktemplate), false } },
-      { "getcurrencyid", { makeMemberMethod(&RpcServer::on_get_currency_id), true } },
-      { "submitblock", { makeMemberMethod(&RpcServer::on_submitblock), false } },
-      { "getlastblockheader", { makeMemberMethod(&RpcServer::on_get_last_block_header), false } },
-      { "getblockheaderbyhash", { makeMemberMethod(&RpcServer::on_get_block_header_by_hash), false } },
-      { "getblockheaderbyheight", { makeMemberMethod(&RpcServer::on_get_block_header_by_height), false } },
-      { "getalternatechains", { makeMemberMethod(&RpcServer::on_get_alternate_chains), false } },
+      { "getblockcount", { makeMemberMethod(&RpcServer::onGetBlockCount), true } },
+      { "getblockhash", { makeMemberMethod(&RpcServer::onGetBlockHash), false } },
+      { "getblocktemplate", { makeMemberMethod(&RpcServer::onGetBlockTemplate), false } },
+      { "getcurrencyid", { makeMemberMethod(&RpcServer::onGetCurrencyId), true } },
+      { "submitblock", { makeMemberMethod(&RpcServer::onSubmitBlock), false } },
+      { "getlastblockheader", { makeMemberMethod(&RpcServer::onGetLastBlockHeader), false } },
+      { "getblockheaderbyhash", { makeMemberMethod(&RpcServer::onGetBlockHeaderByHash), false } },
+      { "getblockheaderbyheight", { makeMemberMethod(&RpcServer::onGetBlockHeaderByHeight), false } },
+      { "getalternatechains", { makeMemberMethod(&RpcServer::onGetAlternateChains), false } },
     };
 
     auto it = jsonRpcHandlers.find(jsonRequest.getMethod());
@@ -332,7 +332,7 @@ bool RpcServer::masternode_check_incoming_tx(const BinaryArray& tx_blob) {
 // Binary handlers
 //
 
-bool RpcServer::on_get_blocks(const COMMAND_RPC_GET_BLOCKS_FAST::request& req, COMMAND_RPC_GET_BLOCKS_FAST::response& res) {
+bool RpcServer::onGetBlocksBin(const COMMAND_RPC_GET_BLOCKS_FAST::request& req, COMMAND_RPC_GET_BLOCKS_FAST::response& res) {
   // TODO code duplication see InProcessNode::doGetNewBlocks()
   if (req.block_ids.empty()) {
     res.status = "Failed";
@@ -359,7 +359,7 @@ bool RpcServer::on_get_blocks(const COMMAND_RPC_GET_BLOCKS_FAST::request& req, C
   return true;
 }
 
-bool RpcServer::on_query_blocks(const COMMAND_RPC_QUERY_BLOCKS::request& req, COMMAND_RPC_QUERY_BLOCKS::response& res) {
+bool RpcServer::onQueryBlocksBin(const COMMAND_RPC_QUERY_BLOCKS::request& req, COMMAND_RPC_QUERY_BLOCKS::response& res) {
   uint32_t startIndex;
   uint32_t currentIndex;
   uint32_t fullOffset;
@@ -376,7 +376,7 @@ bool RpcServer::on_query_blocks(const COMMAND_RPC_QUERY_BLOCKS::request& req, CO
   return true;
 }
 
-bool RpcServer::on_query_blocks_lite(const COMMAND_RPC_QUERY_BLOCKS_LITE::request& req, COMMAND_RPC_QUERY_BLOCKS_LITE::response& res) {
+bool RpcServer::onQueryBlocksLiteBin(const COMMAND_RPC_QUERY_BLOCKS_LITE::request& req, COMMAND_RPC_QUERY_BLOCKS_LITE::response& res) {
   uint32_t startIndex;
   uint32_t currentIndex;
   uint32_t fullOffset;
@@ -393,7 +393,7 @@ bool RpcServer::on_query_blocks_lite(const COMMAND_RPC_QUERY_BLOCKS_LITE::reques
   return true;
 }
 
-bool RpcServer::on_get_indexes(const COMMAND_RPC_GET_TX_GLOBAL_OUTPUTS_INDEXES::request& req, COMMAND_RPC_GET_TX_GLOBAL_OUTPUTS_INDEXES::response& res) {
+bool RpcServer::onGetIndexesBin(const COMMAND_RPC_GET_TX_GLOBAL_OUTPUTS_INDEXES::request& req, COMMAND_RPC_GET_TX_GLOBAL_OUTPUTS_INDEXES::response& res) {
   std::vector<uint32_t> outputIndexes;
   if (!m_core.getTransactionGlobalIndexes(req.txid, outputIndexes)) {
     res.status = "Failed";
@@ -406,7 +406,7 @@ bool RpcServer::on_get_indexes(const COMMAND_RPC_GET_TX_GLOBAL_OUTPUTS_INDEXES::
   return true;
 }
 
-bool RpcServer::on_get_random_outs(const COMMAND_RPC_GET_RANDOM_OUTPUTS_FOR_AMOUNTS::request& req, COMMAND_RPC_GET_RANDOM_OUTPUTS_FOR_AMOUNTS::response& res) {
+bool RpcServer::onGetRandomOutsBin(const COMMAND_RPC_GET_RANDOM_OUTPUTS_FOR_AMOUNTS::request& req, COMMAND_RPC_GET_RANDOM_OUTPUTS_FOR_AMOUNTS::response& res) {
   res.status = "Failed";
 
   for (uint64_t amount : req.amounts) {
@@ -446,73 +446,73 @@ bool RpcServer::on_get_random_outs(const COMMAND_RPC_GET_RANDOM_OUTPUTS_FOR_AMOU
   return true;
 }
 
-bool RpcServer::onGetPoolChanges(const COMMAND_RPC_GET_POOL_CHANGES::request& req, COMMAND_RPC_GET_POOL_CHANGES::response& rsp) {
-  rsp.status = CORE_RPC_STATUS_OK;
-  rsp.isTailBlockActual = m_core.getPoolChanges(req.tailBlockId, req.knownTxsIds, rsp.addedTxs, rsp.deletedTxsIds);
+bool RpcServer::onGetPoolChangesBin(const COMMAND_RPC_GET_POOL_CHANGES::request& req, COMMAND_RPC_GET_POOL_CHANGES::response& res) {
+  res.status = CORE_RPC_STATUS_OK;
+  res.isTailBlockActual = m_core.getPoolChanges(req.tailBlockId, req.knownTxsIds, res.addedTxs, res.deletedTxsIds);
 
   return true;
 }
 
-bool RpcServer::onGetPoolChangesLite(const COMMAND_RPC_GET_POOL_CHANGES_LITE::request& req, COMMAND_RPC_GET_POOL_CHANGES_LITE::response& rsp) {
-  rsp.status = CORE_RPC_STATUS_OK;
-  rsp.isTailBlockActual = m_core.getPoolChangesLite(req.tailBlockId, req.knownTxsIds, rsp.addedTxs, rsp.deletedTxsIds);
+bool RpcServer::onGetPoolChangesLiteBin(const COMMAND_RPC_GET_POOL_CHANGES_LITE::request& req, COMMAND_RPC_GET_POOL_CHANGES_LITE::response& res) {
+  res.status = CORE_RPC_STATUS_OK;
+  res.isTailBlockActual = m_core.getPoolChangesLite(req.tailBlockId, req.knownTxsIds, res.addedTxs, res.deletedTxsIds);
 
   return true;
 }
 
-bool RpcServer::onGetBlocksDetailsByHashes(const COMMAND_RPC_GET_BLOCKS_DETAILS_BY_HASHES::request& req, COMMAND_RPC_GET_BLOCKS_DETAILS_BY_HASHES::response& rsp) {
+bool RpcServer::onGetBlocksDetailsByHashesBin(const COMMAND_RPC_GET_BLOCKS_DETAILS_BY_HASHES::request& req, COMMAND_RPC_GET_BLOCKS_DETAILS_BY_HASHES::response& res) {
   try {
     std::vector<BlockDetails> blockDetails;
     for (const Crypto::Hash& hash : req.blockHashes) {
       blockDetails.push_back(m_core.getBlockDetails(hash));
     }
 
-    rsp.blocks = std::move(blockDetails);
+    res.blocks = std::move(blockDetails);
   } catch (std::system_error& e) {
-    rsp.status = e.what();
+    res.status = e.what();
     return false;
   } catch (std::exception& e) {
-    rsp.status = "Error: " + std::string(e.what());
+    res.status = "Error: " + std::string(e.what());
     return false;
   }
 
-  rsp.status = CORE_RPC_STATUS_OK;
+  res.status = CORE_RPC_STATUS_OK;
   return true;
 }
 
-bool RpcServer::onGetBlockDetailsByHeight(const COMMAND_RPC_GET_BLOCK_DETAILS_BY_HEIGHT::request& req, COMMAND_RPC_GET_BLOCK_DETAILS_BY_HEIGHT::response& rsp) {
+bool RpcServer::onGetBlockDetailsByHeightBin(const COMMAND_RPC_GET_BLOCK_DETAILS_BY_HEIGHT::request& req, COMMAND_RPC_GET_BLOCK_DETAILS_BY_HEIGHT::response& res) {
   try {
     BlockDetails blockDetails = m_core.getBlockDetails(req.blockHeight);
-    rsp.block = blockDetails;
+    res.block = blockDetails;
   } catch (std::system_error& e) {
-    rsp.status = e.what();
+    res.status = e.what();
     return false;
   } catch (std::exception& e) {
-    rsp.status = "Error: " + std::string(e.what());
+    res.status = "Error: " + std::string(e.what());
     return false;
   }
 
-  rsp.status = CORE_RPC_STATUS_OK;
+  res.status = CORE_RPC_STATUS_OK;
   return true;
 }
 
-bool RpcServer::onGetBlocksHashesByTimestamps(const COMMAND_RPC_GET_BLOCKS_HASHES_BY_TIMESTAMPS::request& req, COMMAND_RPC_GET_BLOCKS_HASHES_BY_TIMESTAMPS::response& rsp) {
+bool RpcServer::onGetBlocksHashesByTimestampsBin(const COMMAND_RPC_GET_BLOCKS_HASHES_BY_TIMESTAMPS::request& req, COMMAND_RPC_GET_BLOCKS_HASHES_BY_TIMESTAMPS::response& res) {
   try {
     auto blockHashes = m_core.getBlockHashesByTimestamps(req.timestampBegin, req.secondsCount);
-    rsp.blockHashes = std::move(blockHashes);
+    res.blockHashes = std::move(blockHashes);
   } catch (std::system_error& e) {
-    rsp.status = e.what();
+    res.status = e.what();
     return false;
   } catch (std::exception& e) {
-    rsp.status = "Error: " + std::string(e.what());
+    res.status = "Error: " + std::string(e.what());
     return false;
   }
 
-  rsp.status = CORE_RPC_STATUS_OK;
+  res.status = CORE_RPC_STATUS_OK;
   return true;
 }
 
-bool RpcServer::onGetTransactionDetailsByHashes(const COMMAND_RPC_GET_TRANSACTION_DETAILS_BY_HASHES::request& req, COMMAND_RPC_GET_TRANSACTION_DETAILS_BY_HASHES::response& rsp) {
+bool RpcServer::onGetTransactionDetailsByHashesBin(const COMMAND_RPC_GET_TRANSACTION_DETAILS_BY_HASHES::request& req, COMMAND_RPC_GET_TRANSACTION_DETAILS_BY_HASHES::response& res) {
   try {
     std::vector<TransactionDetails> transactionDetails;
     transactionDetails.reserve(req.transactionHashes.size());
@@ -521,31 +521,31 @@ bool RpcServer::onGetTransactionDetailsByHashes(const COMMAND_RPC_GET_TRANSACTIO
       transactionDetails.push_back(m_core.getTransactionDetails(hash));
     }
 
-    rsp.transactions = std::move(transactionDetails);
+    res.transactions = std::move(transactionDetails);
   } catch (std::system_error& e) {
-    rsp.status = e.what();
+    res.status = e.what();
     return false;
   } catch (std::exception& e) {
-    rsp.status = "Error: " + std::string(e.what());
+    res.status = "Error: " + std::string(e.what());
     return false;
   }
 
-  rsp.status = CORE_RPC_STATUS_OK;
+  res.status = CORE_RPC_STATUS_OK;
   return true;
 }
 
-bool RpcServer::onGetTransactionHashesByPaymentId(const COMMAND_RPC_GET_TRANSACTION_HASHES_BY_PAYMENT_ID::request& req, COMMAND_RPC_GET_TRANSACTION_HASHES_BY_PAYMENT_ID::response& rsp) {
+bool RpcServer::onGetTransactionHashesByPaymentIdBin(const COMMAND_RPC_GET_TRANSACTION_HASHES_BY_PAYMENT_ID::request& req, COMMAND_RPC_GET_TRANSACTION_HASHES_BY_PAYMENT_ID::response& res) {
   try {
-    rsp.transactionHashes = m_core.getTransactionHashesByPaymentId(req.paymentId);
+    res.transactionHashes = m_core.getTransactionHashesByPaymentId(req.paymentId);
   } catch (std::system_error& e) {
-    rsp.status = e.what();
+    res.status = e.what();
     return false;
   } catch (std::exception& e) {
-    rsp.status = "Error: " + std::string(e.what());
+    res.status = "Error: " + std::string(e.what());
     return false;
   }
 
-  rsp.status = CORE_RPC_STATUS_OK;
+  res.status = CORE_RPC_STATUS_OK;
   return true;
 }
 
@@ -553,7 +553,7 @@ bool RpcServer::onGetTransactionHashesByPaymentId(const COMMAND_RPC_GET_TRANSACT
 // JSON handlers
 //
 
-bool RpcServer::on_get_info(const COMMAND_RPC_GET_INFO::request& req, COMMAND_RPC_GET_INFO::response& res) {
+bool RpcServer::onGetInfo(const COMMAND_RPC_GET_INFO::request& req, COMMAND_RPC_GET_INFO::response& res) {
   res.height = m_core.getTopBlockIndex() + 1;
   res.difficulty = m_core.getDifficultyForNextBlock();
   res.tx_count = m_core.getBlockchainTransactionCount() - res.height; //without coinbase
@@ -576,14 +576,14 @@ bool RpcServer::on_get_info(const COMMAND_RPC_GET_INFO::request& req, COMMAND_RP
   return true;
 }
 
-bool RpcServer::on_get_height(const COMMAND_RPC_GET_HEIGHT::request& req, COMMAND_RPC_GET_HEIGHT::response& res) {
+bool RpcServer::onGetHeight(const COMMAND_RPC_GET_HEIGHT::request& req, COMMAND_RPC_GET_HEIGHT::response& res) {
   res.height = m_core.getTopBlockIndex() + 1;
   res.network_height = std::max(static_cast<uint32_t>(1), m_protocol.getBlockchainHeight());
   res.status = CORE_RPC_STATUS_OK;
   return true;
 }
 
-bool RpcServer::on_get_issued(const COMMAND_RPC_GET_ISSUED_COINS::request& req, COMMAND_RPC_GET_ISSUED_COINS::response& res) {
+bool RpcServer::onGetIssued(const COMMAND_RPC_GET_ISSUED_COINS::request& req, COMMAND_RPC_GET_ISSUED_COINS::response& res) {
   Hash hash = m_core.getBlockHashByIndex(m_core.getTopBlockIndex());
   BlockDetails blkDetails = m_core.getBlockDetails(hash);
   res.alreadyGeneratedCoins = std::to_string(blkDetails.alreadyGeneratedCoins);
@@ -591,13 +591,13 @@ bool RpcServer::on_get_issued(const COMMAND_RPC_GET_ISSUED_COINS::request& req, 
   return true;
 }
 
-bool RpcServer::on_get_total(const COMMAND_RPC_GET_TOTAL_COINS::request& req, COMMAND_RPC_GET_TOTAL_COINS::response& res) {
+bool RpcServer::onGetTotal(const COMMAND_RPC_GET_TOTAL_COINS::request& req, COMMAND_RPC_GET_TOTAL_COINS::response& res) {
   res.totalCoins = std::to_string(CryptoNote::parameters::MONEY_SUPPLY);
   res.status = CORE_RPC_STATUS_OK;
   return true;
 }
 
-bool RpcServer::on_get_transactions(const COMMAND_RPC_GET_TRANSACTIONS::request& req, COMMAND_RPC_GET_TRANSACTIONS::response& res) {
+bool RpcServer::onGetTransactions(const COMMAND_RPC_GET_TRANSACTIONS::request& req, COMMAND_RPC_GET_TRANSACTIONS::response& res) {
   std::vector<Hash> vh;
   for (const auto& tx_hex_str : req.txs_hashes) {
     BinaryArray b;
@@ -629,7 +629,7 @@ bool RpcServer::on_get_transactions(const COMMAND_RPC_GET_TRANSACTIONS::request&
   return true;
 }
 
-bool RpcServer::on_send_raw_tx(const COMMAND_RPC_SEND_RAW_TX::request& req, COMMAND_RPC_SEND_RAW_TX::response& res) {
+bool RpcServer::onSendRawTx(const COMMAND_RPC_SEND_RAW_TX::request& req, COMMAND_RPC_SEND_RAW_TX::response& res) {
   std::vector<BinaryArray> transactions(1);
   if (!fromHex(req.tx_as_hex, transactions.back())) {
     logger(INFO) << "[on_send_raw_tx]: Failed to parse tx from hexbuff: " << req.tx_as_hex;
@@ -660,7 +660,7 @@ bool RpcServer::on_send_raw_tx(const COMMAND_RPC_SEND_RAW_TX::request& req, COMM
   return true;
 }
 
-bool RpcServer::on_stop_daemon(const COMMAND_RPC_STOP_DAEMON::request& req, COMMAND_RPC_STOP_DAEMON::response& res) {
+bool RpcServer::onStopDaemon(const COMMAND_RPC_STOP_DAEMON::request& req, COMMAND_RPC_STOP_DAEMON::response& res) {
   if (m_core.getCurrency().isTestnet()) {
     m_p2p.sendStopSignal();
     res.status = CORE_RPC_STATUS_OK;
@@ -672,7 +672,7 @@ bool RpcServer::on_stop_daemon(const COMMAND_RPC_STOP_DAEMON::request& req, COMM
   return true;
 }
 
-bool RpcServer::on_get_fee_address(const COMMAND_RPC_GET_FEE_ADDRESS::request& req, COMMAND_RPC_GET_FEE_ADDRESS::response& res) {
+bool RpcServer::onGetFeeAddress(const COMMAND_RPC_GET_FEE_ADDRESS::request& req, COMMAND_RPC_GET_FEE_ADDRESS::response& res) {
   if (m_fee_address.empty()) {
     res.status = CORE_RPC_STATUS_OK;
     return false;
@@ -695,13 +695,13 @@ bool RpcServer::verifyCollateral() {
   req.transaction = Common::toHex(&m_collateral_hash, sizeof(m_collateral_hash));
   req.account = "TA4a8vvm6KMgk5Ucb7gS9h58yMR7yw5rDjCNP22BT9DYjRdY6yxa9SHA1UALacBPpBTvirC4VY6n1JEJAGewV3g82ScuMRbH4";
   req.viewKey = "d3365d5799225af5954e5b938b3c4703335151dfc339b8bb608d79d2a376890d";
-  if (on_get_transaction_out_amounts_for_account(req, res) && res.amount == 7500000) {
+  if (onGetTransactionOutAmountsForAccount(req, res) && res.amount == 7500000) {
     return true;
   }
   return false;
 }
 
-bool RpcServer::on_get_transaction_out_amounts_for_account(const COMMAND_RPC_GET_TRANSACTION_OUT_AMOUNTS_FOR_ACCOUNT::request& req, COMMAND_RPC_GET_TRANSACTION_OUT_AMOUNTS_FOR_ACCOUNT::response& res)
+bool RpcServer::onGetTransactionOutAmountsForAccount(const COMMAND_RPC_GET_TRANSACTION_OUT_AMOUNTS_FOR_ACCOUNT::request& req, COMMAND_RPC_GET_TRANSACTION_OUT_AMOUNTS_FOR_ACCOUNT::response& res)
 {
   Crypto::Hash tx_hash = NULL_HASH, tx_prefixt_hash = NULL_HASH;
   AccountPublicAddress acc = boost::value_initialized<AccountPublicAddress>();
@@ -757,7 +757,7 @@ bool RpcServer::on_get_transaction_out_amounts_for_account(const COMMAND_RPC_GET
   return true;
 }
 
-bool RpcServer::on_get_collateral_hash(const COMMAND_RPC_GET_COLLATERAL_HASH::request& req, COMMAND_RPC_GET_COLLATERAL_HASH::response& res) {
+bool RpcServer::onGetCollateralHash(const COMMAND_RPC_GET_COLLATERAL_HASH::request& req, COMMAND_RPC_GET_COLLATERAL_HASH::response& res) {
   if (m_collateral_hash != NULL_HASH) {
     res.collateralHash = Common::toHex(&m_collateral_hash, sizeof(m_collateral_hash));
     res.status = CORE_RPC_STATUS_OK;
@@ -768,7 +768,7 @@ bool RpcServer::on_get_collateral_hash(const COMMAND_RPC_GET_COLLATERAL_HASH::re
 }
 
 
-bool RpcServer::on_get_peers(const COMMAND_RPC_GET_PEERS::request& req, COMMAND_RPC_GET_PEERS::response& res) {
+bool RpcServer::onGetPeers(const COMMAND_RPC_GET_PEERS::request& req, COMMAND_RPC_GET_PEERS::response& res) {
   std::vector<PeerlistEntry> peers_white;
 
   m_p2p.getPeerlistManager().get_peerlist_white(peers_white);
@@ -782,7 +782,7 @@ bool RpcServer::on_get_peers(const COMMAND_RPC_GET_PEERS::request& req, COMMAND_
   return true;
 }
 
-bool RpcServer::on_get_peersgray(const COMMAND_RPC_GET_PEERSGRAY::request& req, COMMAND_RPC_GET_PEERSGRAY::response& res) {
+bool RpcServer::onGetPeersGray(const COMMAND_RPC_GET_PEERSGRAY::request& req, COMMAND_RPC_GET_PEERSGRAY::response& res) {
   std::vector<PeerlistEntry> peers_gray;
 
   m_p2p.getPeerlistManager().get_peerlist_gray(peers_gray);
@@ -881,7 +881,7 @@ bool RpcServer::f_on_block_json(const F_COMMAND_RPC_GET_BLOCK_DETAILS::request& 
 
   block_header_response block_header;
   res.block.height = boost::get<BaseInput>(blk.baseTransaction.inputs.front()).blockIndex;
-  fill_block_header_response(blk, false, res.block.height, hash, block_header);
+  fillBlockHeaderResponse(blk, false, res.block.height, hash, block_header);
 
   res.block.major_version = block_header.major_version;
   res.block.minor_version = block_header.minor_version;
@@ -1104,13 +1104,13 @@ bool RpcServer::f_getMixin(const Transaction& transaction, uint64_t& mixin) {
   }
   return true;
 }
-bool RpcServer::on_getblockcount(const COMMAND_RPC_GETBLOCKCOUNT::request& req, COMMAND_RPC_GETBLOCKCOUNT::response& res) {
+bool RpcServer::onGetBlockCount(const COMMAND_RPC_GETBLOCKCOUNT::request& req, COMMAND_RPC_GETBLOCKCOUNT::response& res) {
   res.count = m_core.getTopBlockIndex() + 1;
   res.status = CORE_RPC_STATUS_OK;
   return true;
 }
 
-bool RpcServer::on_getblockhash(const COMMAND_RPC_GETBLOCKHASH::request& req, COMMAND_RPC_GETBLOCKHASH::response& res) {
+bool RpcServer::onGetBlockHash(const COMMAND_RPC_GETBLOCKHASH::request& req, COMMAND_RPC_GETBLOCKHASH::response& res) {
   if (req.size() != 1) {
     throw JsonRpc::JsonRpcError{ CORE_RPC_ERROR_CODE_WRONG_PARAM, "Wrong parameters, expected height" };
   }
@@ -1145,7 +1145,7 @@ namespace {
   }
 }
 
-bool RpcServer::on_getblocktemplate(const COMMAND_RPC_GETBLOCKTEMPLATE::request& req, COMMAND_RPC_GETBLOCKTEMPLATE::response& res) {
+bool RpcServer::onGetBlockTemplate(const COMMAND_RPC_GETBLOCKTEMPLATE::request& req, COMMAND_RPC_GETBLOCKTEMPLATE::response& res) {
   if (req.reserve_size > TX_EXTRA_NONCE_MAX_COUNT) {
     throw JsonRpc::JsonRpcError{ CORE_RPC_ERROR_CODE_TOO_BIG_RESERVE_SIZE, "Too big reserved size, maximum 255" };
   }
@@ -1194,13 +1194,13 @@ bool RpcServer::on_getblocktemplate(const COMMAND_RPC_GETBLOCKTEMPLATE::request&
   return true;
 }
 
-bool RpcServer::on_get_currency_id(const COMMAND_RPC_GET_CURRENCY_ID::request& /*req*/, COMMAND_RPC_GET_CURRENCY_ID::response& res) {
+bool RpcServer::onGetCurrencyId(const COMMAND_RPC_GET_CURRENCY_ID::request& /*req*/, COMMAND_RPC_GET_CURRENCY_ID::response& res) {
   Hash genesisBlockHash = m_core.getCurrency().genesisBlockHash();
   res.currency_id_blob = Common::podToHex(genesisBlockHash);
   return true;
 }
 
-bool RpcServer::on_submitblock(const COMMAND_RPC_SUBMITBLOCK::request& req, COMMAND_RPC_SUBMITBLOCK::response& res) {
+bool RpcServer::onSubmitBlock(const COMMAND_RPC_SUBMITBLOCK::request& req, COMMAND_RPC_SUBMITBLOCK::response& res) {
   if (req.size() != 1) {
     throw JsonRpc::JsonRpcError{ CORE_RPC_ERROR_CODE_WRONG_PARAM, "Wrong param" };
   }
@@ -1264,7 +1264,7 @@ uint64_t get_block_reward(const BlockTemplate& blk) {
 
 }
 
-void RpcServer::fill_block_header_response(const BlockTemplate& blk, bool orphan_status, uint32_t index, const Hash& hash, block_header_response& response) {
+void RpcServer::fillBlockHeaderResponse(const BlockTemplate& blk, bool orphan_status, uint32_t index, const Hash& hash, block_header_response& response) {
 	response.major_version = blk.majorVersion;
 	response.minor_version = blk.minorVersion;
 	response.timestamp = blk.timestamp;
@@ -1281,14 +1281,14 @@ void RpcServer::fill_block_header_response(const BlockTemplate& blk, bool orphan
 	response.block_size = blkDetails.blockSize;
 }
 
-bool RpcServer::on_get_last_block_header(const COMMAND_RPC_GET_LAST_BLOCK_HEADER::request& req, COMMAND_RPC_GET_LAST_BLOCK_HEADER::response& res) {
+bool RpcServer::onGetLastBlockHeader(const COMMAND_RPC_GET_LAST_BLOCK_HEADER::request& req, COMMAND_RPC_GET_LAST_BLOCK_HEADER::response& res) {
   auto topBlock = m_core.getBlockByHash(m_core.getTopBlockHash());
-  fill_block_header_response(topBlock, false, m_core.getTopBlockIndex(), m_core.getTopBlockHash(), res.block_header);
+  fillBlockHeaderResponse(topBlock, false, m_core.getTopBlockIndex(), m_core.getTopBlockHash(), res.block_header);
   res.status = CORE_RPC_STATUS_OK;
   return true;
 }
 
-bool RpcServer::on_get_block_header_by_hash(const COMMAND_RPC_GET_BLOCK_HEADER_BY_HASH::request& req, COMMAND_RPC_GET_BLOCK_HEADER_BY_HASH::response& res) {
+bool RpcServer::onGetBlockHeaderByHash(const COMMAND_RPC_GET_BLOCK_HEADER_BY_HASH::request& req, COMMAND_RPC_GET_BLOCK_HEADER_BY_HASH::response& res) {
   Hash blockHash;
   if (!parse_hash256(req.hash, blockHash)) {
     throw JsonRpc::JsonRpcError{
@@ -1306,12 +1306,12 @@ bool RpcServer::on_get_block_header_by_hash(const COMMAND_RPC_GET_BLOCK_HEADER_B
   CachedBlock cachedBlock(block);
   assert(block.baseTransaction.inputs.front().type() != typeid(BaseInput));
 
-  fill_block_header_response(block, false, cachedBlock.getBlockIndex(), cachedBlock.getBlockHash(), res.block_header);
+  fillBlockHeaderResponse(block, false, cachedBlock.getBlockIndex(), cachedBlock.getBlockHash(), res.block_header);
   res.status = CORE_RPC_STATUS_OK;
   return true;
 }
 
-bool RpcServer::on_get_block_header_by_height(const COMMAND_RPC_GET_BLOCK_HEADER_BY_HEIGHT::request& req, COMMAND_RPC_GET_BLOCK_HEADER_BY_HEIGHT::response& res) {
+bool RpcServer::onGetBlockHeaderByHeight(const COMMAND_RPC_GET_BLOCK_HEADER_BY_HEIGHT::request& req, COMMAND_RPC_GET_BLOCK_HEADER_BY_HEIGHT::response& res) {
   if (m_core.getTopBlockIndex() < req.height) {
     throw JsonRpc::JsonRpcError{ CORE_RPC_ERROR_CODE_TOO_BIG_HEIGHT,
       std::string("Too big height: ") + std::to_string(req.height) + ", current blockchain height = " + std::to_string(m_core.getTopBlockIndex()) };
@@ -1321,13 +1321,13 @@ uint32_t index = static_cast<uint32_t>(req.height);
   auto block = m_core.getBlockByIndex(index);
   CachedBlock cachedBlock(block);
 assert(cachedBlock.getBlockIndex() == req.height);
-  fill_block_header_response(block, false, index, cachedBlock.getBlockHash(), res.block_header);
+  fillBlockHeaderResponse(block, false, index, cachedBlock.getBlockHash(), res.block_header);
   res.status = CORE_RPC_STATUS_OK;
   return true;
 }
 
 
-bool RpcServer::on_get_alternate_chains(const COMMAND_RPC_GET_ALTERNATE_CHAINS::request& req, COMMAND_RPC_GET_ALTERNATE_CHAINS::response& res) {
+bool RpcServer::onGetAlternateChains(const COMMAND_RPC_GET_ALTERNATE_CHAINS::request& req, COMMAND_RPC_GET_ALTERNATE_CHAINS::response& res) {
   try {
     altChainList chains = m_core.getAlternateChains();
     for (const auto &i: chains) {
@@ -1343,7 +1343,7 @@ bool RpcServer::on_get_alternate_chains(const COMMAND_RPC_GET_ALTERNATE_CHAINS::
 }
 
 
-bool RpcServer::on_get_block_headers_range(const COMMAND_RPC_GET_BLOCK_HEADERS_RANGE::request& req, COMMAND_RPC_GET_BLOCK_HEADERS_RANGE::response& res, JsonRpc::JsonRpcError& error_resp) {
+bool RpcServer::onGetBlockHeadersRange(const COMMAND_RPC_GET_BLOCK_HEADERS_RANGE::request& req, COMMAND_RPC_GET_BLOCK_HEADERS_RANGE::response& res, JsonRpc::JsonRpcError& error_resp) {
 	// TODO: change usage to jsonRpcHandlers?
         auto coreStatistics = m_core.getCoreStatistics();
 	const uint64_t bc_height = coreStatistics.blockchainHeight;
@@ -1359,7 +1359,7 @@ bool RpcServer::on_get_block_headers_range(const COMMAND_RPC_GET_BLOCK_HEADERS_R
 		CryptoNote::BlockTemplate blk = m_core.getBlockByHash(block_hash);
 
 		res.headers.push_back(block_header_response());
-		fill_block_header_response(blk, false, h, block_hash, res.headers.back());
+		fillBlockHeaderResponse(blk, false, h, block_hash, res.headers.back());
 
 		// TODO: Error handling like in monero?
 		/*block blk;
@@ -1384,7 +1384,7 @@ bool RpcServer::on_get_block_headers_range(const COMMAND_RPC_GET_BLOCK_HEADERS_R
 			return false;
 		}
 		res.headers.push_back(block_header_response());
-		bool response_filled = fill_block_header_response(blk, false, block_height, block_hash, res.headers.back());
+		bool response_filled = fillBlockHeaderResponse(blk, false, block_height, block_hash, res.headers.back());
 		if (!response_filled)
 		{
 			error_resp.code = CORE_RPC_ERROR_CODE_INTERNAL_ERROR;
@@ -1397,27 +1397,27 @@ bool RpcServer::on_get_block_headers_range(const COMMAND_RPC_GET_BLOCK_HEADERS_R
 	return true;
 }
 
-bool RpcServer::on_get_blocks_details_by_hashes(const COMMAND_RPC_GET_BLOCKS_DETAILS_BY_HASHES_JSON::request& req, COMMAND_RPC_GET_BLOCKS_DETAILS_BY_HASHES_JSON::response& rsp) {
+bool RpcServer::onGetBlocksDetailsByHashes(const COMMAND_RPC_GET_BLOCKS_DETAILS_BY_HASHES_JSON::request& req, COMMAND_RPC_GET_BLOCKS_DETAILS_BY_HASHES_JSON::response& res) {
   try {
     std::vector<BlockDetails> blockDetails;
     for (const Crypto::Hash& hash : req.blockHashes) {
       blockDetails.push_back(m_core.getBlockDetails(hash));
     }
 
-    rsp.blocks = std::move(blockDetails);
+    res.blocks = std::move(blockDetails);
   } catch (std::system_error& e) {
-    rsp.status = e.what();
+    res.status = e.what();
     return false;
   } catch (std::exception& e) {
-    rsp.status = "Error: " + std::string(e.what());
+    res.status = "Error: " + std::string(e.what());
     return false;
   }
 
-  rsp.status = CORE_RPC_STATUS_OK;
+  res.status = CORE_RPC_STATUS_OK;
   return true;
 }
 
-bool RpcServer::on_get_transaction_details_by_hashes(const COMMAND_RPC_GET_TRANSACTION_DETAILS_BY_HASHES_JSON::request& req, COMMAND_RPC_GET_TRANSACTION_DETAILS_BY_HASHES_JSON::response& rsp) {
+bool RpcServer::onGetTransactionDetailsByHashes(const COMMAND_RPC_GET_TRANSACTION_DETAILS_BY_HASHES_JSON::request& req, COMMAND_RPC_GET_TRANSACTION_DETAILS_BY_HASHES_JSON::response& res) {
   try {
     std::vector<TransactionDetails> transactionDetails;
     transactionDetails.reserve(req.transactionHashes.size());
@@ -1426,32 +1426,32 @@ bool RpcServer::on_get_transaction_details_by_hashes(const COMMAND_RPC_GET_TRANS
       transactionDetails.push_back(m_core.getTransactionDetails(hash));
     }
 
-    rsp.transactions = std::move(transactionDetails);
+    res.transactions = std::move(transactionDetails);
   } catch (std::system_error& e) {
-    rsp.status = e.what();
+    res.status = e.what();
     return false;
   } catch (std::exception& e) {
-    rsp.status = "Error: " + std::string(e.what());
+    res.status = "Error: " + std::string(e.what());
     return false;
   }
 
-  rsp.status = CORE_RPC_STATUS_OK;
+  res.status = CORE_RPC_STATUS_OK;
   return true;
 }
 
-bool RpcServer::on_get_transaction_hashes_by_payment_id(const COMMAND_RPC_GET_TRANSACTION_HASHES_BY_PAYMENT_ID_JSON::request& req, COMMAND_RPC_GET_TRANSACTION_HASHES_BY_PAYMENT_ID_JSON::response& rsp) {
+bool RpcServer::onGetTransactionHashesByPaymentId(const COMMAND_RPC_GET_TRANSACTION_HASHES_BY_PAYMENT_ID_JSON::request& req, COMMAND_RPC_GET_TRANSACTION_HASHES_BY_PAYMENT_ID_JSON::response& res) {
   if (req.startIndex > req.endIndex) {
-    rsp.status = CORE_RPC_STATUS_INTERNAL_ERROR;
+    res.status = CORE_RPC_STATUS_INTERNAL_ERROR;
     return false;
   }
   std::vector<Crypto::Hash> transactionHashes;
   try {
     transactionHashes = m_core.getTransactionHashesByPaymentId(req.paymentId);
   } catch (std::system_error& e) {
-    rsp.status = e.what();
+    res.status = e.what();
     return false;
   } catch (std::exception& e) {
-    rsp.status = "Error: " + std::string(e.what());
+    res.status = "Error: " + std::string(e.what());
     return false;
   }
   if (req.startIndex > 0 || req.endIndex < m_core.getTopBlockIndex() || (!req.includeUnconfirmed)) {
@@ -1467,25 +1467,25 @@ bool RpcServer::on_get_transaction_hashes_by_payment_id(const COMMAND_RPC_GET_TR
           hashes.push_back(hash);
         }
       }
-      rsp.transactionHashes = std::move(hashes);
+      res.transactionHashes = std::move(hashes);
     } catch (std::system_error& e) {
-      rsp.status = e.what();
+      res.status = e.what();
       return false;
     } catch (std::exception& e) {
-      rsp.status = "Error: " + std::string(e.what());
+      res.status = "Error: " + std::string(e.what());
       return false;
     }
   } else {
-    rsp.transactionHashes = std::move(transactionHashes);
+    res.transactionHashes = std::move(transactionHashes);
   }
 
-  rsp.status = CORE_RPC_STATUS_OK;
+  res.status = CORE_RPC_STATUS_OK;
   return true;
 }
 
-bool RpcServer::on_get_block_hashes_by_transaction_hashes(const COMMAND_RPC_GET_BLOCK_HASHES_BY_TRANSACTION_HASHES::request& req, COMMAND_RPC_GET_BLOCK_HASHES_BY_TRANSACTION_HASHES::response& rsp) {
+bool RpcServer::onGetBlockHashesByTransactionHashes(const COMMAND_RPC_GET_BLOCK_HASHES_BY_TRANSACTION_HASHES::request& req, COMMAND_RPC_GET_BLOCK_HASHES_BY_TRANSACTION_HASHES::response& res) {
   if (req.startIndex > req.endIndex) {
-    rsp.status = CORE_RPC_STATUS_INTERNAL_ERROR;
+    res.status = CORE_RPC_STATUS_INTERNAL_ERROR;
     return false;
   }
   // Get details of all transactions so we can get the hashes of blocks the transactions are in
@@ -1497,10 +1497,10 @@ bool RpcServer::on_get_block_hashes_by_transaction_hashes(const COMMAND_RPC_GET_
       transactionDetails.push_back(m_core.getTransactionDetails(hash));
     }
   } catch (std::system_error& e) {
-    rsp.status = e.what();
+    res.status = e.what();
     return false;
   } catch (std::exception& e) {
-    rsp.status = "Error: " + std::string(e.what());
+    res.status = "Error: " + std::string(e.what());
     return false;
   }
 
@@ -1515,10 +1515,10 @@ bool RpcServer::on_get_block_hashes_by_transaction_hashes(const COMMAND_RPC_GET_
       }
     }
   } catch (std::system_error& e) {
-    rsp.status = e.what();
+    res.status = e.what();
     return false;
   } catch (std::exception& e) {
-    rsp.status = "Error: " + std::string(e.what());
+    res.status = "Error: " + std::string(e.what());
     return false;
   }
 
@@ -1526,44 +1526,44 @@ bool RpcServer::on_get_block_hashes_by_transaction_hashes(const COMMAND_RPC_GET_
   auto last = std::unique(blockHashes.begin(), blockHashes.end());
   blockHashes.erase(last, blockHashes.end());
 
-  rsp.blockHashes = std::move(blockHashes);
-  rsp.status = CORE_RPC_STATUS_OK;
+  res.blockHashes = std::move(blockHashes);
+  res.status = CORE_RPC_STATUS_OK;
   return true;
 }
 
-bool RpcServer::on_get_block_hashes_by_payment_id(const COMMAND_RPC_GET_BLOCK_HASHES_BY_PAYMENT_ID_JSON::request& req, COMMAND_RPC_GET_BLOCK_HASHES_BY_PAYMENT_ID_JSON::response& rsp) {
+bool RpcServer::onGetBlockHashesByPaymentId(const COMMAND_RPC_GET_BLOCK_HASHES_BY_PAYMENT_ID_JSON::request& req, COMMAND_RPC_GET_BLOCK_HASHES_BY_PAYMENT_ID_JSON::response& res) {
   if (req.startIndex > req.endIndex) {
-    rsp.status = CORE_RPC_STATUS_INTERNAL_ERROR;
+    res.status = CORE_RPC_STATUS_INTERNAL_ERROR;
     return false;
   }
   COMMAND_RPC_GET_TRANSACTION_HASHES_BY_PAYMENT_ID_JSON::request req1;
-  COMMAND_RPC_GET_TRANSACTION_HASHES_BY_PAYMENT_ID_JSON::response rsp1;
+  COMMAND_RPC_GET_TRANSACTION_HASHES_BY_PAYMENT_ID_JSON::response res1;
   req1.paymentId = req.paymentId;
-  bool status = on_get_transaction_hashes_by_payment_id(req1, rsp1);
+  bool status = onGetTransactionHashesByPaymentId(req1, res1);
   if (!status) {
-    rsp.status = rsp1.status;
+    res.status = res1.status;
     return false;
   }
 
   COMMAND_RPC_GET_BLOCK_HASHES_BY_TRANSACTION_HASHES::request req2;
-  COMMAND_RPC_GET_BLOCK_HASHES_BY_TRANSACTION_HASHES::response rsp2;
-  req2.transactionHashes = std::move(rsp1.transactionHashes);
+  COMMAND_RPC_GET_BLOCK_HASHES_BY_TRANSACTION_HASHES::response res2;
+  req2.transactionHashes = std::move(res1.transactionHashes);
   req2.startIndex = req.startIndex;
   req2.endIndex = req.endIndex;
-  status = on_get_block_hashes_by_transaction_hashes(req2, rsp2);
+  status = onGetBlockHashesByTransactionHashes(req2, res2);
   if (!status) {
-    rsp.status = rsp2.status;
+    res.status = res2.status;
     return false;
   }
 
-  rsp.blockHashes = std::move(rsp2.blockHashes);
-  rsp.status = CORE_RPC_STATUS_OK;
+  res.blockHashes = std::move(res2.blockHashes);
+  res.status = CORE_RPC_STATUS_OK;
   return true;
 }
 
-bool RpcServer::on_get_block_indexes_by_transaction_hashes(const COMMAND_RPC_GET_BLOCK_INDEXES_BY_TRANSACTION_HASHES::request& req, COMMAND_RPC_GET_BLOCK_INDEXES_BY_TRANSACTION_HASHES::response& rsp) {
+bool RpcServer::onGetBlockIndexesByTransactionHashes(const COMMAND_RPC_GET_BLOCK_INDEXES_BY_TRANSACTION_HASHES::request& req, COMMAND_RPC_GET_BLOCK_INDEXES_BY_TRANSACTION_HASHES::response& res) {
   if (req.startIndex > req.endIndex) {
-    rsp.status = CORE_RPC_STATUS_INTERNAL_ERROR;
+    res.status = CORE_RPC_STATUS_INTERNAL_ERROR;
     return false;
   }
   // Get details of all transactions so we can get the hashes of blocks the transactions are in
@@ -1575,10 +1575,10 @@ bool RpcServer::on_get_block_indexes_by_transaction_hashes(const COMMAND_RPC_GET
       transactionDetails.push_back(m_core.getTransactionDetails(hash));
     }
   } catch (std::system_error& e) {
-    rsp.status = e.what();
+    res.status = e.what();
     return false;
   } catch (std::exception& e) {
-    rsp.status = "Error: " + std::string(e.what());
+    res.status = "Error: " + std::string(e.what());
     return false;
   }
 
@@ -1593,10 +1593,10 @@ bool RpcServer::on_get_block_indexes_by_transaction_hashes(const COMMAND_RPC_GET
       }
     }
   } catch (std::system_error& e) {
-    rsp.status = e.what();
+    res.status = e.what();
     return false;
   } catch (std::exception& e) {
-    rsp.status = "Error: " + std::string(e.what());
+    res.status = "Error: " + std::string(e.what());
     return false;
   }
 
@@ -1604,8 +1604,8 @@ bool RpcServer::on_get_block_indexes_by_transaction_hashes(const COMMAND_RPC_GET
   auto last = std::unique(blockIndexes.begin(), blockIndexes.end());
   blockIndexes.erase(last, blockIndexes.end());
 
-  rsp.blockIndexes = std::move(blockIndexes);
-  rsp.status = CORE_RPC_STATUS_OK;
+  res.blockIndexes = std::move(blockIndexes);
+  res.status = CORE_RPC_STATUS_OK;
   return true;
 }
 

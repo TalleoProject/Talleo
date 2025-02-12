@@ -1,5 +1,5 @@
 // Copyright (c) 2012-2017, The CryptoNote developers, The Bytecoin developers
-// Copyright (c) 2021-2023, The Talleo developers
+// Copyright (c) 2021-2025, The Talleo developers
 //
 // This file is part of Bytecoin.
 //
@@ -163,7 +163,7 @@ bool DaemonCommandsHandler::print_bc(const std::vector<std::string> &args) {
 	req.end_height = end_index;
 
 	// TODO: implement m_is_rpc handling like in monero?
-	if (!m_prpc_server->on_get_block_headers_range(req, res, error_resp) || res.status != CORE_RPC_STATUS_OK) {
+	if (!m_prpc_server->onGetBlockHeadersRange(req, res, error_resp) || res.status != CORE_RPC_STATUS_OK) {
 		// TODO res.status handling
 		std::cout << "Response status not CORE_RPC_STATUS_OK" << ENDL;
 		return false;
@@ -227,7 +227,7 @@ bool DaemonCommandsHandler::print_alternate_chains(const std::vector<std::string
     return false;
   }
 
-  if (!m_prpc_server->on_get_alternate_chains(req, res)) {
+  if (!m_prpc_server->onGetAlternateChains(req, res)) {
     std::cout << res.status << std::endl;
     return false;
   }
