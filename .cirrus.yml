@@ -1,8 +1,8 @@
 task:
   freebsd_instance:
     matrix:
-      - image_family: freebsd-13-3
-      - image_family: freebsd-14-0
+      - image_family: freebsd-14-2
+      - image_family: freebsd-15-0-snap
 
   install_script: pkg install -y git cmake boost-all miniupnpc openssl
   script:
