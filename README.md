@@ -75,6 +75,7 @@ NOTES:
 4. If you have Visual Studio 2022 Community, you will need to use either
     1. [Boost 1.77.0](https://sourceforge.net/projects/boost/files/boost-binaries/1.77.0/) and v142 toolchain
     2. [Boost 1.78.0](https://sourceforge.net/projects/boost/files/boost-binaries/1.78.0/) or later, and v143 toolchain
+5. Last tested Boost version is 1.84.0, later versions might be incompatible
 
 ##### Building
 
