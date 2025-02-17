@@ -83,11 +83,12 @@ NOTES:
 - `cd <your_Talleo_directory>`
 - `mkdir build`
 - `cd build`
-- Set the PATH variable for cmake: ie. `set PATH="C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin";%PATH%`
-- `cmake -DBOOST_ROOT=C:\local\boost_1_64_0 -DBOOST_LIBRARYDIR=C:\local\boost_1_64_0\lib64-msvc-14.0 -G "Visual Studio 14 Win64" C:\...\Talleo
-- Open Talleo.sln in "Visual Studio" and compile the binaries
+- If necessary, set the PATH variable for cmake: ie. `set PATH="C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin";%PATH%`
+- `cmake -DBOOST_ROOT=C:\local\boost_1_64_0 -DBOOST_LIBRARYDIR=C:\local\boost_1_64_0\lib64-msvc-14.0 -G "Visual Studio 14 Win64" <your_Talleo_directory>
+- A 'Talleo.sln' file will be created in the `build` directory.
+     1. Open it in Visual Studio 2017 and compile the binaries, or
+     2. 'cmake --build . --config Release'
 - If all went well, it will complete successfully, and you will find all your binaries in the '..\build\src\Release' directory.
-- Additionally, a `.sln` file will have been created in the `build` directory. If you wish to open the project in Visual Studio with this, you can.
 
 #### FreeBSD
 
