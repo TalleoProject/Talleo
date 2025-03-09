@@ -1,5 +1,5 @@
 // Copyright (c) 2012-2017, The CryptoNote developers, The Bytecoin developers
-// Copyright (c) 2021-2023, The Talleo developers
+// Copyright (c) 2021-2025, The Talleo developers
 //
 // This file is part of Bytecoin.
 //
@@ -51,6 +51,7 @@ PaymentServiceJsonRpcServer::PaymentServiceJsonRpcServer(System::Dispatcher& sys
   handlers.emplace("getTransactionHashes", jsonHandler<GetTransactionHashes::Request, GetTransactionHashes::Response>(std::bind(&PaymentServiceJsonRpcServer::handleGetTransactionHashes, this, std::placeholders::_1, std::placeholders::_2)));
   handlers.emplace("getTransactions", jsonHandler<GetTransactions::Request, GetTransactions::Response>(std::bind(&PaymentServiceJsonRpcServer::handleGetTransactions, this, std::placeholders::_1, std::placeholders::_2)));
   handlers.emplace("getTransactionCount", jsonHandler<GetTransactionCount::Request, GetTransactionCount::Response>(std::bind(&PaymentServiceJsonRpcServer::handleGetTransactionCount, this, std::placeholders::_1, std::placeholders::_2)));
+  handlers.emplace("getTransactionCounts", jsonHandler<GetTransactionCounts::Request, GetTransactionCounts::Response>(std::bind(&PaymentServiceJsonRpcServer::handleGetTransactionCounts, this, std::placeholders::_1, std::placeholders::_2)));
   handlers.emplace("getUnconfirmedTransactionHashes", jsonHandler<GetUnconfirmedTransactionHashes::Request, GetUnconfirmedTransactionHashes::Response>(std::bind(&PaymentServiceJsonRpcServer::handleGetUnconfirmedTransactionHashes, this, std::placeholders::_1, std::placeholders::_2)));
   handlers.emplace("getTransaction", jsonHandler<GetTransaction::Request, GetTransaction::Response>(std::bind(&PaymentServiceJsonRpcServer::handleGetTransaction, this, std::placeholders::_1, std::placeholders::_2)));
   handlers.emplace("sendTransaction", jsonHandler<SendTransaction::Request, SendTransaction::Response>(std::bind(&PaymentServiceJsonRpcServer::handleSendTransaction, this, std::placeholders::_1, std::placeholders::_2)));
@@ -211,6 +212,14 @@ std::error_code PaymentServiceJsonRpcServer::handleGetTransactionCount(const Get
     return service.getTransactionCount(request.addresses, request.blockHash, request.blockCount, request.paymentId, response.transactions);
   } else {
     return service.getTransactionCount(request.addresses, request.firstBlockIndex, request.blockCount, request.paymentId, response.transactions);
+  }
+}
+
+std::error_code PaymentServiceJsonRpcServer::handleGetTransactionCounts(const GetTransactionCounts::Request& request, GetTransactionCounts::Response& response) {
+  if (!request.blockHash.empty()) {
+    return service.getTransactionCounts(request.addresses, request.blockHash, request.blockCount, request.paymentId, response.transactionCounts);
+  } else {
+    return service.getTransactionCounts(request.addresses, request.firstBlockIndex, request.blockCount, request.paymentId, response.transactionCounts);
   }
 }
 

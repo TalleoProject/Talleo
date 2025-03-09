@@ -1,5 +1,5 @@
 // Copyright (c) 2012-2017, The CryptoNote developers, The Bytecoin developers
-// Copyright (c) 2021-2023, The Talleo developers
+// Copyright (c) 2021-2025, The Talleo developers
 //
 // This file is part of Bytecoin.
 //
@@ -234,8 +234,31 @@ void GetTransactionCount::Request::serialize(CryptoNote::ISerializer& serializer
   serializer(paymentId, "paymentId");
 }
 
+void TransactionCountsInfo::serialize(CryptoNote::ISerializer& serializer) {
+  serializer(address, "address");
+  serializer(incoming, "incoming");
+  serializer(outgoing, "outgoing");
+}
+
 void GetTransactionCount::Response::serialize(CryptoNote::ISerializer& serializer) {
   serializer(transactions, "transactions");
+}
+void GetTransactionCounts::Request::serialize(CryptoNote::ISerializer& serializer) {
+  serializer(addresses, "addresses");
+
+  if (serializer(blockHash, "blockHash") == serializer(firstBlockIndex, "firstBlockIndex")) {
+    throw RequestSerializationError();
+  }
+
+  if (!serializer(blockCount, "blockCount")) {
+    throw RequestSerializationError();
+  }
+
+  serializer(paymentId, "paymentId");
+}
+
+void GetTransactionCounts::Response::serialize(CryptoNote::ISerializer& serializer) {
+  serializer(transactionCounts, "transactionCounts");
 }
 
 void TransferRpcInfo::serialize(CryptoNote::ISerializer& serializer) {

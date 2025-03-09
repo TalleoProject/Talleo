@@ -2,7 +2,7 @@
 // Copyright (c) 2016-2019, The Karbo developers
 // Copyright (c) 2018, The TurtleCoin Developers
 // Copyright (c) 2018-2019, The Cash2 developers
-// Copyright (c) 2021-2023, The Talleo developers
+// Copyright (c) 2021-2025, The Talleo developers
 //
 // This file is part of Bytecoin.
 //
@@ -95,6 +95,10 @@ public:
     uint32_t blockCount, const std::string& paymentId, size_t& transactionCount);
   std::error_code getTransactionCount(const std::vector<std::string>& addresses, uint32_t firstBlockIndex,
     uint32_t blockCount, const std::string& paymentId, size_t& transactionCount);
+  std::error_code getTransactionCounts(const std::vector<std::string>& addresses, const std::string& blockHash,
+    uint32_t blockCount, const std::string& paymentId, std::vector<TransactionCountsInfo>& transactionCounts);
+  std::error_code getTransactionCounts(const std::vector<std::string>& addresses, uint32_t firstBlockIndex,
+    uint32_t blockCount, const std::string& paymentId, std::vector<TransactionCountsInfo>& transactionCounts);
   std::error_code getTransactions(const std::vector<std::string>& addresses, const std::string& blockHash,
     uint32_t blockCount, const std::string& paymentId, std::vector<TransactionsInBlockRpcInfo>& transactionHashes);
   std::error_code getTransactions(const std::vector<std::string>& addresses, uint32_t firstBlockIndex,
@@ -131,6 +135,9 @@ private:
 
   size_t getRpcTransactionCount(const Crypto::Hash& blockHash, size_t blockCount, const TransactionsInBlockInfoFilter& filter) const;
   size_t getRpcTransactionCount(uint32_t firstBlockIndex, size_t blockCount, const TransactionsInBlockInfoFilter& filter) const;
+
+  std::vector<TransactionCountsInfo> getRpcTransactionCounts(const Crypto::Hash& blockHash, size_t blockCount, const TransactionsInBlockInfoFilter& filter) const;
+  std::vector<TransactionCountsInfo> getRpcTransactionCounts(uint32_t firstBlockIndex, size_t blockCount, const TransactionsInBlockInfoFilter& filter) const;
 
   std::vector<TransactionsInBlockRpcInfo> getRpcTransactions(const Crypto::Hash& blockHash, size_t blockCount, const TransactionsInBlockInfoFilter& filter) const;
   std::vector<TransactionsInBlockRpcInfo> getRpcTransactions(uint32_t firstBlockIndex, size_t blockCount, const TransactionsInBlockInfoFilter& filter) const;

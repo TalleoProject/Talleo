@@ -1,5 +1,5 @@
 // Copyright (c) 2012-2017, The CryptoNote developers, The Bytecoin developers
-// Copyright (c) 2021-2023, The Talleo developers
+// Copyright (c) 2021-2025, The Talleo developers
 //
 // This file is part of Bytecoin.
 //
@@ -88,6 +88,7 @@ private:
   std::error_code handleGetTransactionHashes(const GetTransactionHashes::Request& request, GetTransactionHashes::Response& response);
   std::error_code handleGetTransactions(const GetTransactions::Request& request, GetTransactions::Response& response);
   std::error_code handleGetTransactionCount(const GetTransactionCount::Request& request, GetTransactionCount::Response& response);
+  std::error_code handleGetTransactionCounts(const GetTransactionCounts::Request& request, GetTransactionCounts::Response& response);
   std::error_code handleGetUnconfirmedTransactionHashes(const GetUnconfirmedTransactionHashes::Request& request, GetUnconfirmedTransactionHashes::Response& response);
   std::error_code handleGetTransaction(const GetTransaction::Request& request, GetTransaction::Response& response);
   std::error_code handleSendTransaction(const SendTransaction::Request& request, SendTransaction::Response& response);

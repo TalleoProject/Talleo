@@ -1,5 +1,5 @@
 // Copyright (c) 2012-2017, The CryptoNote developers, The Bytecoin developers
-// Copyright (c) 2021-2023, The Talleo developers
+// Copyright (c) 2021-2025, The Talleo developers
 //
 // This file is part of Bytecoin.
 //
@@ -322,6 +322,32 @@ struct GetTransactionCount {
 
   struct Response {
     size_t transactions;
+
+    void serialize(CryptoNote::ISerializer& serializer);
+  };
+};
+
+struct TransactionCountsInfo {
+  std::string address;
+  size_t incoming;
+  size_t outgoing;
+
+  void serialize(CryptoNote::ISerializer& serializer);
+};
+
+struct GetTransactionCounts {
+  struct Request {
+    std::vector<std::string> addresses;
+    std::string blockHash;
+    uint32_t firstBlockIndex = std::numeric_limits<uint32_t>::max();
+    uint32_t blockCount;
+    std::string paymentId;
+
+    void serialize(CryptoNote::ISerializer& serializer);
+  };
+
+  struct Response {
+    std::vector<TransactionCountsInfo> transactionCounts;
 
     void serialize(CryptoNote::ISerializer& serializer);
   };

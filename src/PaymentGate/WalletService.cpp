@@ -2,7 +2,7 @@
 // Copyright (c) 2016-2022, Karbo developers
 // Copyright (c) 2018, The TurtleCoin Developers
 // Copyright (c) 2018-2019, The Cash2 developers
-// Copyright (c) 2021-2023, The Talleo developers
+// Copyright (c) 2021-2025, The Talleo developers
 //
 // This file is part of Bytecoin.
 //
@@ -968,6 +968,55 @@ std::error_code WalletService::getTransactionCount(const std::vector<std::string
   return std::error_code();
 }
 
+std::error_code WalletService::getTransactionCounts(const std::vector<std::string>& addresses, const std::string& blockHashString,
+  uint32_t blockCount, const std::string& paymentId, std::vector<TransactionCountsInfo>& transactionCounts) {
+  try {
+    System::EventLock lk(readyEvent);
+    validateAddresses(addresses, currency, logger);
+
+    if (!paymentId.empty()) {
+      validatePaymentId(paymentId, logger);
+    }
+
+    TransactionsInBlockInfoFilter transactionFilter(addresses, paymentId);
+    Crypto::Hash blockHash = parseHash(blockHashString, logger);
+
+    transactionCounts = getRpcTransactionCounts(blockHash, blockCount, transactionFilter);
+  } catch (std::system_error& x) {
+    logger(Logging::WARNING, Logging::BRIGHT_YELLOW) << "Error while getting transaction counts: " << x.what();
+    return x.code();
+  } catch (std::exception& x) {
+    logger(Logging::WARNING, Logging::BRIGHT_YELLOW) << "Error while getting transaction counts: " << x.what();
+    return make_error_code(CryptoNote::error::INTERNAL_WALLET_ERROR);
+  }
+
+  return std::error_code();
+}
+
+std::error_code WalletService::getTransactionCounts(const std::vector<std::string>& addresses, uint32_t firstBlockIndex,
+  uint32_t blockCount, const std::string& paymentId, std::vector<TransactionCountsInfo>& transactionCounts) {
+  try {
+    System::EventLock lk(readyEvent);
+    validateAddresses(addresses, currency, logger);
+
+    if (!paymentId.empty()) {
+      validatePaymentId(paymentId, logger);
+    }
+
+    TransactionsInBlockInfoFilter transactionFilter(addresses, paymentId);
+    transactionCounts = getRpcTransactionCounts(firstBlockIndex, blockCount, transactionFilter);
+
+  } catch (std::system_error& x) {
+    logger(Logging::WARNING, Logging::BRIGHT_YELLOW) << "Error while getting transaction counts: " << x.what();
+    return x.code();
+  } catch (std::exception& x) {
+    logger(Logging::WARNING, Logging::BRIGHT_YELLOW) << "Error while getting transaction counts: " << x.what();
+    return make_error_code(CryptoNote::error::INTERNAL_WALLET_ERROR);
+  }
+
+  return std::error_code();
+}
+
 std::error_code WalletService::getTransactions(const std::vector<std::string>& addresses, const std::string& blockHashString,
   uint32_t blockCount, const std::string& paymentId, std::vector<TransactionsInBlockRpcInfo>& transactions) {
   try {
@@ -1449,6 +1498,72 @@ size_t WalletService::getRpcTransactionCount(uint32_t firstBlockIndex, size_t bl
     txs += it->transactions.size();
   }
   return txs;
+}
+
+TransactionCountsInfo convertTransactionCount(const std::map<std::string, std::pair<size_t, size_t>>::iterator it) {
+  TransactionCountsInfo info;
+  info.address = it->first;
+  info.incoming = it->second.first;
+  info.outgoing = it->second.second;
+  return info;
+}
+
+std::vector<TransactionCountsInfo> WalletService::getRpcTransactionCounts(const Crypto::Hash& blockHash, size_t blockCount, const TransactionsInBlockInfoFilter& filter) const {
+  std::vector<CryptoNote::TransactionsInBlockInfo> allTransactions = getTransactions(blockHash, blockCount);
+  std::vector<CryptoNote::TransactionsInBlockInfo> filteredTransactions = filterTransactions(allTransactions, filter);
+  std::map<std::string, std::pair<size_t, size_t>> transactionCounts;
+  std::vector<TransactionCountsInfo> transactionCountsVector;
+  for (auto it = filteredTransactions.begin(); it != filteredTransactions.end(); it++) {
+    for (auto it2 = it->transactions.begin(); it2 != it->transactions.end(); it2++) {
+      for (auto it3 = it2->transfers.begin(); it3 != it2->transfers.end(); it3++) {
+        if (filter.addresses.find(it3->address) != filter.addresses.end()) {
+          auto it4 = transactionCounts.find(it3->address);
+          if (it4 == transactionCounts.end()) {
+            transactionCounts.emplace(it3->address, std::make_pair<size_t, size_t>(0, 0));
+            it4 = transactionCounts.find(it3->address);
+          }
+          if (it3->amount > 0) {
+            it4->second.first++;
+          } else if (it3->amount < 0) {
+            it4->second.second++;
+          }
+        }
+      }
+    }
+  }
+  for (auto cit = transactionCounts.begin(); cit != transactionCounts.end(); cit++) {
+    transactionCountsVector.push_back(convertTransactionCount(cit));
+  }
+  return transactionCountsVector;
+}
+
+std::vector<TransactionCountsInfo> WalletService::getRpcTransactionCounts(uint32_t firstBlockIndex, size_t blockCount, const TransactionsInBlockInfoFilter& filter) const {
+  std::vector<CryptoNote::TransactionsInBlockInfo> allTransactions = getTransactions(firstBlockIndex, blockCount);
+  std::vector<CryptoNote::TransactionsInBlockInfo> filteredTransactions = filterTransactions(allTransactions, filter);
+  std::map<std::string, std::pair<size_t, size_t>> transactionCounts;
+  std::vector<TransactionCountsInfo> transactionCountsVector;
+  for (auto it = filteredTransactions.begin(); it != filteredTransactions.end(); it++) {
+    for (auto it2 = it->transactions.begin(); it2 != it->transactions.end(); it2++) {
+      for (auto it3 = it2->transfers.begin(); it3 != it2->transfers.end(); it3++) {
+        if (filter.addresses.find(it3->address) != filter.addresses.end()) {
+          auto it4 = transactionCounts.find(it3->address);
+          if (it4 == transactionCounts.end()) {
+            transactionCounts.emplace(it3->address, std::make_pair<size_t, size_t>(0, 0));
+            it4 = transactionCounts.find(it3->address);
+          }
+          if (it3->amount > 0) {
+            it4->second.first++;
+          } else if (it3->amount < 0) {
+            it4->second.second++;
+          }
+        }
+      }
+    }
+  }
+  for (auto cit = transactionCounts.begin(); cit != transactionCounts.end(); cit++) {
+    transactionCountsVector.push_back(convertTransactionCount(cit));
+  }
+  return transactionCountsVector;
 }
 
 } //namespace PaymentService
